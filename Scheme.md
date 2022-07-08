@@ -1,10 +1,10 @@
 # `isolated-app:` Scheme Explainer
 
 This document provides a more detailed look at the `isolated-app:` scheme, which is part of the proposal for [Isolated Web Apps](./README.md).
-Isolated Web Apps are a new proposal to build an application using web technologies, but with additional security properties compared to normal web pages.
+Isolated Web Apps are a new proposal to build applications using web technologies, but with additional security properties compared to normal web pages.
 Isolated Web Apps bundle all their contents inside a web bundle that is then [signed to make its integrity verifiable](https://github.com/WICG/webpackage/blob/main/explainers/integrity-signature.md).
 A key difference between Isolated Web Apps and normal web pages is that Isolated Web Apps do not rely on DNS name resolution and HTTPS certificate authorities.
-Instead, they need to be downloaded and installed.
+Instead, they need to be downloaded and installed from an app store or be distributed via enterprise configuration.
 A user agent can verify the integrity of an Isolated Web App by checking the signature and comparing its corresponding public key to a list of known trusted public keys.
 
 ## `isolated-app:` Scheme
@@ -24,7 +24,7 @@ scheme         opaque host          path               query      fragment
 ### Host
 
 URLs with the `isolated-app:` scheme use a Signed Web Bundle ID (see next section) as their opaque host, as defined in the [URL standard](https://url.spec.whatwg.org/).
-The Signed Web Bundle ID being the host adds the requirement that it must be a valid hostname (see [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986)), which is the case given that Signed Web Bundle IDs are base32 encoded without padding.
+The Signed Web Bundle ID being the host adds the requirement that it must be a valid hostname (see [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986)), which is the case given that Signed Web Bundle IDs are [base32-encoded](https://datatracker.ietf.org/doc/html/rfc4648) without padding.
 It is the user agent’s responsibility to map the Signed Web Bundle ID contained in the opaque host to an installed Isolated Web App and then use the URL path to serve resources from its Web Bundle.
 
 ### Port & Credentials
@@ -37,10 +37,9 @@ Isolated Web App URLs with a port or credentials should not be loaded and result
 
 These work like one would expect from HTTP(S) URLs, as described in the URL specification.
 
-
 ## Signed Web Bundle IDs
 
-We identify Isolated Web Apps by their _Signed Web Bundle ID_.
+Isolated Web Apps are identified by their _Signed Web Bundle ID_.
 Signed Web Bundle IDs consist of an identifier followed by a suffix that represents the type of identifier.
 Both parts are concatenated and base32-encoded, discarding any potential padding.
 The result is then transformed into lowercase.
@@ -56,7 +55,7 @@ Currently, the following two suffixes are defined:
 `0x00 0x00 0x02`: This suffix indicates that the ID is a user-agent-specific value that can be used for testing and development purposes.
 For example, loading a Web Bundle from the local filesystem which is not signed.
 
-`0x00 0x01 0x02`: This suffix is used for Ed25519 public keys as Signed Web Bundle ID.
+`0x00 0x01 0x02`: This suffix is used for [Ed25519](https://datatracker.ietf.org/doc/html/rfc8032) public keys as Signed Web Bundle ID.
 It is prefixed by the 32-byte representation of the Ed25519 public key that is used to sign the web bundle (see [this explainer](https://github.com/WICG/webpackage/blob/main/explainers/integrity-signature.md) for more details about the signing process).
 Since this Signed Web Bundle ID is only dependent on the signing key, it makes it possible to have the same Signed Web Bundle ID regardless of the distribution mechanism of the Isolated Web App, without requiring a central authority to manage keys.
 
@@ -78,7 +77,7 @@ a2 b6 c2 d9 f2 02 03 42 18 10
 00 73 00 01 02
 ```
 
-Base32 encoded public key and suffix (56 chars long):
+Base32-encoded public key and suffix (56 chars long):
 ```
 AERUGQZTIJ5BIQQUUK3MFWPSAIBUEGAQCITGFCHWUOSUOFDJABZQAAIC
 ```
