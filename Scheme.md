@@ -4,7 +4,7 @@ This document provides a more detailed look at the `isolated-app:` scheme, which
 Isolated Web Apps are a new proposal to build applications using web technologies, but with additional security properties compared to normal web pages.
 Isolated Web Apps bundle all their contents inside a web bundle that is then [signed to make its integrity verifiable](https://github.com/WICG/webpackage/blob/main/explainers/integrity-signature.md).
 A key difference between Isolated Web Apps and normal web pages is that Isolated Web Apps do not rely on DNS name resolution and HTTPS certificate authorities.
-Instead, they need to be downloaded and installed from an app store or be distributed via enterprise configuration.
+Instead, they need to be explicitly downloaded and installed by the user, such as from an app store or via enterprise configuration.
 A user agent can verify the integrity of an Isolated Web App by checking the signature and comparing its corresponding public key to a list of known trusted public keys.
 
 ## `isolated-app:` Scheme
@@ -24,14 +24,14 @@ scheme         opaque host          path               query      fragment
 ### Host
 
 URLs with the `isolated-app:` scheme use a Signed Web Bundle ID (see next section) as their opaque host, as defined in the [URL standard](https://url.spec.whatwg.org/).
-The Signed Web Bundle ID being the host adds the requirement that it must be a valid hostname (see [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986)), which is the case given that Signed Web Bundle IDs are [base32-encoded](https://datatracker.ietf.org/doc/html/rfc4648) without padding.
-It is the user agent’s responsibility to map the Signed Web Bundle ID contained in the opaque host to an installed Isolated Web App and then use the URL path to serve resources from its Web Bundle.
+The Signed Web Bundle ID being the host adds the requirement that it must be a valid hostname (see [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986)). This requirement is satisfied by using [base32 encoding](https://datatracker.ietf.org/doc/html/rfc4648), with padding removed.
+It is the user agent’s responsibility to map the Signed Web Bundle ID contained in the opaque host to an installed Isolated Web App and its associated Web Bundle. The URL path is then used to fetch resources as relative URLs from the bundle.
 
 ### Port & Credentials
 
 Isolated Web App URLs do not use usernames, passwords, or ports.
 All three of these components are therefore always `null`.
-Isolated Web App URLs with a port or credentials should not be loaded and result in an HTTP error.
+Isolated Web App URLs with a port or credentials must not be loaded and must result in an HTTP error.
 
 ### Path, Query, Fragment
 
