@@ -40,16 +40,17 @@ These work like one would expect from HTTP(S) URLs, as described in the URL spec
 ## Signed Web Bundle IDs
 
 Isolated Web Apps are identified by their _Signed Web Bundle ID_.
-Signed Web Bundle IDs consist of an identifier followed by a suffix that represents the type of identifier.
-Both parts are concatenated and base32-encoded, discarding any potential padding.
-The result is then transformed into lowercase.
-The suffix itself consists of two parts: The last byte indicates how many bytes are used to describe the identifier type, and the `n` bytes before it are used to describe the identifier type.
+The Signed Web Bundle ID is an ASCII string which contains an identifier followed by a suffix that represents the type of identifier.
 The general format of Signed Web Bundle IDs looks like this:
 
 ```
 lowercase(base32EncodeWithoutPadding([identifier] [identifier type] [identifier type length]))
+                                                  [ ------------ suffix ------------------ ]
 ```
 
+### Suffix
+
+The suffix consists of two parts: The last byte indicates how many bytes are used to describe the identifier type, and the `n` bytes before it are used to describe the identifier type.
 Currently, the following two suffixes are defined:
 
 `0x00 0x00 0x02`: This suffix indicates that the ID is a user-agent-specific value that can be used for testing and development purposes.
@@ -59,7 +60,21 @@ For example, loading a Web Bundle from the local filesystem which is not signed.
 It is prefixed by the 32-byte representation of the Ed25519 public key that is used to sign the web bundle (see [this explainer](https://github.com/WICG/webpackage/blob/main/explainers/integrity-signature.md) for more details about the signing process).
 Since this Signed Web Bundle ID is only dependent on the signing key, it makes it possible to have the same Signed Web Bundle ID regardless of the distribution mechanism of the Isolated Web App, without requiring a central authority to manage keys.
 
-### Example:
+### Encoding
+
+Given an identifier and the suffix representing the type of the identifier, both must be concatenated and then base32-encoded.
+Potential padding introduced by the base32 encoding must be discarded and the result transformed into lowercase.
+The resulting string is a Signed Web Bundle ID.
+
+### Decoding
+
+Given a Signed Web Bundle ID, it must first be transformed into uppercase.
+If the string's length is not a multiple of 8, a number of padding characters (`=`) must be added until its length is a multiple of 8.
+Then, the string must be base32-decoded.
+Next, the last byte must be read to determine the length of the identifier type.
+Assuming that there are `n` bytes in total and that the last byte contains the number `l`, the `identifier` can be reconstructed by reading bytes `[0, n-l-1)`, and the `identifier type` can be reconstructed by reading bytes `[n-l-1, n-1)`.
+
+### Example for Ed25519 keys
 
 Public Ed25519 key (hex, 32 bytes):
 ```
@@ -81,6 +96,8 @@ Base32-encoded public key and suffix (56 chars long):
 ```
 AERUGQZTIJ5BIQQUUK3MFWPSAIBUEGAQCITGFCHWUOSUOFDJABZQAAIC
 ```
+
+Since the length of the public key and suffix is a multiple of 5, no padding is generated that would need to be removed.
 
 Signed Web Bundle ID (56 chars long):
 ```
