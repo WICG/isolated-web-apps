@@ -79,6 +79,7 @@ This proposal addresses that vulnerability by defining a single moment at which 
 
 ## Acknowledgements
 
+*   Alex Russell &lt;alexrussell@microsoft.com>
 *   Andrew Whalley &lt;awhalley@google.com>
 *   Mike West &lt;mkwst@google.com>
 *   Penny McLachlan &lt;pjmclachlan@google.com>
