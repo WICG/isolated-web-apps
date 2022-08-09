@@ -31,6 +31,8 @@ Content-Security-Policy: base-uri 'none';
                          object-src 'none';
                          frame-src 'self' https:;
                          connect-src 'self' https:;
+                         script-src 'self' 'wasm-unsafe-eval';
+                         require-trusted-types-for 'script';
 ```
 
 In this policy `'self'` refers to resources loaded from the application’s Web Bundle since its origin only addresses resources from within the bundle. `'self'` also excludes `blob:`, `filesystem:`, and other local schemes, as well as inline script, which makes it more difficult to use external resources gathered through `fetch()` to change the application's behavior. Cross-origin iframes, HTTP requests from JavaScript, and WebSocket connections are still allowed so that the application can interact with network resources.
