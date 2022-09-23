@@ -72,6 +72,7 @@ Designing more trustworthy web contexts and packaging applications based on web 
 *   The [MiniApps Working Group](https://www.w3.org/2021/miniapps/) also [defines](https://w3c.github.io/miniapp-packaging/) a format based on ZIP archives.
 *   Electron defines a [custom](https://github.com/electron/asar) archive format for efficient loading of application resources.
 *   Microsoft previously supported building UWP applications using JavaScript which were packaged using MSIX.
+*   [LG webOS platform](https://www.webosose.org/docs/tutorials/web-apps/developing-external-web-apps/) has supported their own web app packaging format (ipk) with [appinfo.json](https://www.webosose.org/docs/guides/development/configuration-files/appinfo-json/).
 
 ### Comparison to Code Verify
 
