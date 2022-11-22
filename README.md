@@ -67,7 +67,7 @@ Designing more trustworthy web contexts and packaging applications based on web 
 
 *   Mike West proposed “[Securer Contexts](https://github.com/mikewest/securer-contexts/blob/master/README.md)” upon which the isolation and injection protection presented here are based.
 *   Google uses signed ZIP archives for both Chrome Apps and Extensions.
-*   Mozilla [proposed](https://wiki.mozilla.org/Apps/Security) signed ZIP archives for applications on Firefox OS and a “[new security model](https://wiki.mozilla.org/FirefoxOS/New_security_model)” for such applications.
+*   Mozilla's Firefox OS [used](https://wiki.mozilla.org/Apps/Security) a similar packaged app solution with signed ZIP archives and an `app://` protocol scheme. Further planned work on a “[new security model](https://wiki.mozilla.org/FirefoxOS/New_security_model)” was designed to support streaming these packages from https urls to improve overall webiness and linkability.
 *   The [Browser Extension Community Group](https://www.w3.org/community/browserext/) [suggests](https://browserext.github.io/browserext/#packaging) packaging Web Extensions in ZIP archives but leaves the details up to the implementation.
 *   The [MiniApps Working Group](https://www.w3.org/2021/miniapps/) also [defines](https://w3c.github.io/miniapp-packaging/) a format based on ZIP archives.
 *   Electron defines a [custom](https://github.com/electron/asar) archive format for efficient loading of application resources.
