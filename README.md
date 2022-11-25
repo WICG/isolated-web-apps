@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document proposes a way of building applications using web standard technologies that will have useful security properties unavailable to normal web pages. They are tentatively called Isolated Web Apps (IWAs). Rather than being hosted on live web servers and fetched over HTTPS, these applications are packaged into [Web Bundles](https://wicg.github.io/webpackage/draft-yasskin-wpack-bundled-exchanges.html), signed by their developer, and distributed to end-users through one or more of the potential methods described below.
+This document proposes a way of building applications using web standard technologies that will have useful security properties unavailable to normal web pages. They are tentatively called Isolated Web Apps (IWAs). Rather than being hosted on live web servers and fetched over HTTPS, these applications are packaged into [Web Bundles](https://wpack-wg.github.io/bundled-responses/draft-ietf-wpack-bundled-responses.html), signed by their developer, and distributed to end-users through one or more of the potential methods described below.
 
 ## Motivating Use Cases
 
