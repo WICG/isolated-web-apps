@@ -33,10 +33,13 @@ Content-Security-Policy: base-uri 'none';
                          frame-src 'self' https:;
                          connect-src 'self' https:;
                          script-src 'self' 'wasm-unsafe-eval';
+                         img-src 'self' https: blob: data:;
+                         media-src 'self' https: blob: data:;
+                         font-src 'self' blob: data:;
                          require-trusted-types-for 'script';
 ```
 
-In this policy `'self'` refers to resources loaded from the application’s Web Bundle since its origin only addresses resources from within the bundle. `'self'` also excludes `blob:`, `filesystem:`, and other local schemes, as well as inline script, which makes it more difficult to use external resources gathered through `fetch()` to change the application's behavior. Cross-origin iframes, HTTP requests from JavaScript, and WebSocket connections are still allowed so that the application can interact with network resources.
+In this policy `'self'` refers to resources loaded from the application’s Web Bundle since its origin only addresses resources from within the bundle. `'self'` also excludes `blob:`, `filesystem:`, and other local schemes, as well as inline script, which makes it more difficult to use external resources gathered through `fetch()` to change the application's behavior. Cross-origin images, media, iframes, HTTP requests from JavaScript, and WebSocket connections are still allowed so that the application can interact with network resources.
 
 To further protect these applications from interference from potentially malicious third-party content, they must be [cross-origin isolated](https://web.dev/why-coop-coep/) and so these headers are also applied:
 
