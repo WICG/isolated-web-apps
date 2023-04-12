@@ -16,15 +16,15 @@ The resource served at the `update_manifest_url` is a JSON document listing vers
 In order to check for updates the user agent follows the following steps,
 
 1. Fetch the resource from `update_manifest_url` and parse it as a JSON document.
-2. Let _selectedVersion_ and _selectedUrl_ be initialized to `null`.
+2. Let _selectedVersion_ and _selectedSrc_ be initialized to `null`.
 3. For each object in the document’s `versions` entry,
     1. Let _version_ be the object’s `version` field, skipping this item if the field does not exist.
-    2. Let _url_ be the object’s `url` field, skipping this item if the field does not exist.
-    3. If _version_ is not a valid version identifier or _url_ is not a valid URL, skip this item.
-    4. If _selectedVersion_ is `null` or _selectedVersion_ is less than or equal to _version_, set _selectedVersion_ to _version_ and _selectedUrl_ to _url_. 
+    2. Let _src_ be the object’s `src` field, skipping this item if the field does not exist.
+    3. If _version_ is not a valid version identifier or _src_ is not a valid URL, skip this item.
+    4. If _selectedVersion_ is `null` or _selectedVersion_ is less than or equal to _version_, set _selectedVersion_ to _version_ and _selectedSrc_ to _src_. 
 4. If _selectedVersion_ is `null`, abort these steps.
 5. If _selectedVersion_ is less than or equal to the currently installed version, abort these steps.
-6. Fetch the resource from _selectedUrl_.
+6. Fetch the resource from _selectedSrc_.
 7. If the resource is not a valid Signed Web Bundle, abort these steps.
 8. If the Web Bundle ID of the resource is not equal to that of the currently installed app, abort these steps.
 9. Load `/manifest.webmanifest` from the Web Bundle and parse it as a Web Application Manifest.
@@ -46,7 +46,7 @@ The optional `update_manifest_url` field indicates the location where the Web Ap
 
 ## Web Application Update Manifest
 
-The Web Application Update Manifest is a document listing all application versions available for download. It consists of a single JSON object with a single field called `versions` which is a list. Each entry in the list is an object containing two fields, `version` and `url`. The `version` field is a string in the same format as the proposed Web Application Manifest `version` field. The `url` field is a URL and is resolved relative to the location of the manifest. It must be an HTTPS URL or a localhost HTTP URL, for testing purposes. For example a manifest hosted at `https://developer.example.com/app/updates.json` could contain,
+The Web Application Update Manifest is a document listing all application versions available for download. It consists of a single JSON object with a single field called `versions` which is a list. Each entry in the list is an object containing two fields, `version` and `src`. The `version` field is a string in the same format as the proposed Web Application Manifest `version` field. The `src` field is a URL and is resolved relative to the location of the manifest. It must be an HTTPS URL or a localhost HTTP URL, for testing purposes. For example a manifest hosted at `https://developer.example.com/app/updates.json` could contain,
 
 ```
 {
