@@ -24,7 +24,7 @@ The reason for this is both practical and philosophical. If the identity of the 
 
 An application can be upgraded by replacing its Web Bundle with a new version signed by the same key. Since the key hash is the same, the application retains any local storage associated with the previous version. To prevent downgrade attacks, implementations may require either a `"version"` field in the [Web Application Manifest](https://www.w3.org/TR/appmanifest/), or the signature timestamp to be monotonically increasing.
 
-The protection against server compromise would be no good if the application could be tricked into loading malicious content from outside its Web Bundle, and so a strict Content Security Policy is applied,
+The protection against server compromise would be no good if the application could be tricked into loading malicious content from outside its Web Bundle, and so a rigorous Content Security Policy is applied,
 
 ```
 Content-Security-Policy: base-uri 'none';
