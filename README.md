@@ -36,6 +36,7 @@ Content-Security-Policy: base-uri 'none';
                          img-src 'self' https: blob: data:;
                          media-src 'self' https: blob: data:;
                          font-src 'self' blob: data:;
+                         style-src 'self' 'unsafe-inline';
                          require-trusted-types-for 'script';
 ```
 
