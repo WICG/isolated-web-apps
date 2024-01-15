@@ -79,7 +79,7 @@ This proposal addresses that vulnerability by defining a single moment at which 
 
 ## Discuss & Help
 
-If you'd like to discuss the Isolated Web Apps proposal itself, please use [GitHub Issues](https://github.com/GoogleChromeLabs/webbundle-plugins/issues).
+If you'd like to discuss the Isolated Web Apps proposal itself, please use [GitHub Issues](https://github.com/WICG/isolated-web-apps).
 
 For discussions related to Isolated Web Apps in general, or Chromium-specific implementation and development questions, please use the [iwa-dev@chromium.org](https://groups.google.com/a/chromium.org/g/iwa-dev) mailing list.
 
