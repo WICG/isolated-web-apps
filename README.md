@@ -86,6 +86,12 @@ Meta and Cloudflare have [announced](https://blog.cloudflare.com/cloudflare-veri
 
 This proposal addresses that vulnerability by defining a single moment at which the application is vulnerable to a network attacker, that is, the moment when a bundle is downloaded, and afterwards resources are not fetched over the network. The Code Verify system could be improved by blocking access to the site until the manifest has been fetched, so that only verified resources can be loaded rather than warning the user that the resources have been tampered with after the fact. At that point however, the benefit of individually fetching resources over the network is weakened and using a signed Web Bundle, as proposed here, allows fetching and verification to be completed as a single step.
 
+## Discuss & Help
+
+If you'd like to discuss the Isolated Web Apps proposal itself, please use [GitHub Issues](https://github.com/WICG/isolated-web-apps).
+
+For discussions related to Isolated Web Apps in general, or Chromium-specific implementation and development questions, please use the [iwa-dev@chromium.org](https://groups.google.com/a/chromium.org/g/iwa-dev) mailing list.
+
 ## Acknowledgements
 
 *   Alex Russell &lt;alexrussell@microsoft.com>
