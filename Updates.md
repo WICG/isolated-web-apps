@@ -38,7 +38,7 @@ In order to check for updates the user agent follows the following steps,
 
 The `version` field contains a string indicating the version of the application. This field is only used and mandatory for Isolated Web Apps, but has no meaning for normal Web Applications. For the purposes of updating version numbers only need to be ordered. For example, a plain integer versioning scheme (e.g. 1, 2, 3, etc.) would be sufficient however for ease of use and to provide for more complex comparisons to be performed on versions a structured format such as “A.B.C.D”, where A, B, C and D are positive integers (or zero) is much more useful. A format such as [Semantic Versioning](https://semver.org/) could also be adopted as it provides even more expressivity.
 
-Whatever the structure of the version string, a comparison algorithm must be defined so that sorting of and comparisons between versions can be performed in the algorithms defined in this specification. Lexical comparison between version strings is inappropriate. A manifest without the `version` field set should be treated as having the lowest-possible version.
+Whatever the structure of the version string, a comparison algorithm must be defined so that sorting of and comparisons between versions can be performed in the algorithms defined in this specification. Lexical comparison between version strings is inappropriate.
 
 ### `update_manifest_url` field
 
