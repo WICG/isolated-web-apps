@@ -79,6 +79,7 @@ Designing more trustworthy web contexts and packaging applications based on web 
 *   Microsoft previously supported building UWP applications using JavaScript which were packaged using MSIX.
 *   [LG webOS platform](https://www.webosose.org/docs/tutorials/web-apps/developing-external-web-apps/) has supported their own web app packaging format (ipk) with [appinfo.json](https://www.webosose.org/docs/guides/development/configuration-files/appinfo-json/).
 *   [Delta Chat](https://delta.chat/) and [Cheogram](https://cheogram.com) implement the [webxdc](https://webxdc.org/) archive format for embedding web apps in the context of an encrypted messenger, with all network activity blocked by default. The only way to send and receive data from the web app is by delegating message relay to the (e2e encrypting) messenger.
+*   [Peergos](https://peergos.org) allows users to install 3rd party web apps from a signed snapshot. Those web apps are run in an [isolated unique-origin iframe](https://peergos.org/posts/a-better-web) locked down so no external communication is possible using COOP,COEP,CORP,CSP. Apps then communicate with the outer Peergos context via post messages where permissions are enforced, like sending E2EE messages to friends, or reading/persisting data. 
 
 ### Comparison to Code Verify
 
