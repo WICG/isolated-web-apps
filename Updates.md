@@ -90,6 +90,8 @@ For forward compatibility, implementations MUST ignore keys they do not recogniz
 
 Update Channels allow app developers to provide their users with multiple "Release Trains" to choose from. There is a n:m relationship between Update Channels and versions of an app. Each version can belong to multiple channels, and each channel can contain multiple versions. A version belonging to no channels (i.e., a version where `channels` is set to `[]`), is never updated to.
 
+An Update Channel is identified by its ID, which MUST be a non-empty string.
+
 An implementation SHOULD give users the option to switch the Update Channel of an installed app. In enterprise contexts, implementations SHOULD give enterprise admins the option to select Update Channels for apps they install for their users.
 
 It is up to the app developer to define the meaning of Update Channels:
