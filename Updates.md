@@ -30,7 +30,7 @@ In order to check for updates the user agent follows the following steps,
 7. Fetch the resource from _selectedSrc_.
 8. If the resource is not a valid Signed Web Bundle, abort these steps.
 9. If the Web Bundle ID of the resource is not equal to that of the currently installed app, abort these steps.
-10. Load `/manifest.webmanifest` from the Web Bundle and parse it as a Web Application Manifest.
+10. Load `/.well-known/manifest.webmanifest` from the Web Bundle and parse it as a Web Application Manifest.
 11. If the resource is not found or fails to parse, abort these steps.
 12. If the `version` field in the manifest from the Web Bundle is not equal to _selectedVersion_, abort these steps.
 13. Replace the Web Bundle for the current installed app with the downloaded resource.
