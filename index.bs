@@ -10,9 +10,9 @@ Repository: https://github.com/WICG/isolated-web-apps
 Editor: Robbie McElrath 139758, Google LLC https://google.com, rmcelrath@google.com
 
 Abstract:
-	This specification defines "isolated contexts", which allows user agent
-	implementers and specification authors to enable certain features only when
-	minimum standards of isolation and integrity are met.
+  This specification defines "isolated contexts", which allows user agent
+  implementers and specification authors to enable certain features only when
+  minimum standards of isolation and integrity are met.
 
 Markup Shorthands: markdown yes
 </pre>
