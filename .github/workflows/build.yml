@@ -13,7 +13,7 @@ jobs:
     - uses: w3c/spec-prod@v2
       with:
         TOOLCHAIN: bikeshed
-        SOURCE: index.bs
-        DESTINATION: index.html
+        SOURCE: isolated-contexts.bs
+        DESTINATION: isolated-contexts.html
         GH_PAGES_BRANCH: gh-pages
         BUILD_FAIL_ON: warning
