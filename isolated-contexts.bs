@@ -4,7 +4,7 @@ Shortname: isolated-contexts
 Level: 1
 Group: wicg
 Status: w3c/CG-DRAFT
-ED: https://wicg.github.io/isolated-web-apps
+ED: https://wicg.github.io/isolated-web-apps/isolated-contexts
 Repository: https://github.com/WICG/isolated-web-apps
 
 Editor: Robbie McElrath 139758, Google LLC https://google.com, rmcelrath@google.com
