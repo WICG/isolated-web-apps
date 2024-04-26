@@ -26,7 +26,7 @@ spec:webidl; type:dfn; text:namespace
 This specification is currently being drafted. In the meantime, please see the
 [Isolated Web Apps Explainer](https://github.com/WICG/isolated-web-apps).
 
-<h1 id="isolated context">Isolated Contexts</h1>
+<h1 id="isolated-contexts">Isolated Contexts</h1>
 
 <dfn export>Isolated context</dfn> will be defined here.
 
