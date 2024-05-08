@@ -1,5 +1,5 @@
 {
-  "src_file": "index.bs",
+  "src_file": "isolated-contexts.bs",
   "type": "bikeshed",
   "params": {
     "force": 1
