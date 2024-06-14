@@ -10,7 +10,7 @@ Repository: https://github.com/WICG/isolated-web-apps
 Editor: Robbie McElrath 139758, Google LLC https://google.com, rmcelrath@google.com
 
 Abstract:
-  This specification defines "isolated contexts", which allows user agent
+  This specification defines "isolated contexts", which allow user agent
   implementers and specification authors to enable certain features only when
   minimum standards of isolation and integrity are met.
 
@@ -18,19 +18,545 @@ Markup Shorthands: markdown yes
 </pre>
 
 <pre class="link-defaults">
+spec:csp3; type:dfn; for:/; text:csp list
+spec:ecmascript; type:dfn; for:ECMAScript; text:realm
+spec:fetch; type:dfn; for:/; text:response
+spec:fetch; type:dfn; text:fetch params
+spec:fetch; type:dfn; for:fetch params; text:request
+spec:fetch; type:dfn; text:main fetch
+spec:html; type:dfn; for:environment settings object; text:cross-origin isolated capability
+spec:html; type:dfn; text:browsing context group
+spec:html; type:dfn; text:concrete
+spec:html; type:dfn; for:/; text:origin
+spec:html; type:dfn; for:environment settings object; text:origin
+spec:infra; type:dfn; for:list; text:for each
+spec:infra; type:dfn; text:user agent
+spec:url; type:dfn; for:/; text:url
 spec:webidl; type:dfn; text:namespace
 </pre>
+<pre class="anchors">
+urlPrefix: https://w3c.github.io/webappsec-csp/; spec:CSP3
+    type: abstract-op
+        text: Get fetch directive fallback list; url: #directive-fallback-list
+</pre>
+<pre class=biblio>
+{
+  "strict-csp": {
+      "href": "https://web.dev/strict-csp/",
+      "title": "Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)",
+      "authors": [ "Lukas Weichselbaum" ],
+      "date": "15 March 2021"
+  },
+  "securer-contexts": {
+    "authors": [ "Mike West" ],
+    "href": "https://github.com/mikewest/securer-contexts",
+    "title": "Securer Contexts"
+  },
+  "uisecurity": {
+    "authors": [
+      "Brad Hill"
+    ],
+    "href": "https://www.w3.org/TR/UISecurity/",
+    "title": "User Interface Security and the Visibility API",
+    "status": "WD",
+    "publisher": "W3C",
+    "deliveredBy": [
+      {
+        "url": "https://www.w3.org/groups/wg/webappsec/",
+        "shortname": "s_webappsec"
+      }
+    ],
+    "versions": [
+      "UISecurity-20160607",
+      "UISecurity-20140318",
+      "UISecurity-20130523",
+      "UISecurity-20121120"
+    ],
+    "edDraft": "https://w3c.github.io/webappsec-uisecurity/index.html",
+    "repository": "https://github.com/w3c/webappsec-uisecurity",
+    "id": "UISecurity",
+    "date": "7 June 2016"
+  }
+}
+</pre>
 
-<h1 id="introduction">Introduction</h1>
+# Introduction # {#introduction}
 
-This specification is currently being drafted. In the meantime, please see the
-[Isolated Web Apps Explainer](https://github.com/WICG/isolated-web-apps).
+This specification is currently being drafted. For more background, please see
+the [Isolated Web Apps Explainer](https://github.com/WICG/isolated-web-apps).
 
-<h1 id="isolated-contexts">Isolated Contexts</h1>
+# Isolated Contexts # {#isolated-contexts}
 
 <dfn export>Isolated context</dfn> will be defined here.
 
-<h2 id="IsolatedContext" extended-attribute lt="IsolatedContext">[IsolatedContext]</h2>
+
+
+
+
+
+
+
+
+<!--
+BCG: https://html.spec.whatwg.org/multipage/document-sequences.html#tlbc-group
+BCG swap: https://html.spec.whatwg.org/multipage/browsers.html#browsing-context-group-switches-due-to-cross-origin-opener-policy
+
+Docs:
+Mike notes: https://docs.google.com/document/d/1KJ3ApOiVc_wWEPXxzKJXTiFTvuI_nAu5pWvrl75vhYY/edit?usp=sharing
+go/securerer-contexts
+HTM security: https://docs.google.com/document/d/16mo3zmnUhpMzKNfbGFP9_x5ENeC6mgPHmhOso8XDf-U/edit?usp=sharing&resourcekey=0-1praImfRYPNcf6Ep5UUV0A
+https://w3c.github.io/webappsec-csp/#directive-frame-ancestors gives some
+good justification of ancestor rules
+
+
+IsolatedContext if:
+  - sufficient CSP
+  - UI redressing (CSP rule)
+  - COI
+  - Environment has set of known resources
+  - top-level content or same origin descendent ?? needed?
+
+If IsolatedContext:
+  - Storage Key dual-keyed (remove when actually spec'd)
+  - Integrity of subresources and navigations
+    - Maybe say something (environment?) has a set of known resources,
+      all navigations and subresources must be present in this set?
+
+TODO:
+  Basic non-normative
+  Polish
+-->
+
+
+This is a monkey patch specificiation that makes the following modifications:
+
+*   [[CSP]] will define the characteristics of a policy that's robust enough to
+    meaningfully defend against attack. It builds on what we've learned from
+    explorations like [[strict-csp]] and [[securer-contexts]], pushing
+    developers towards well-understood and valuable defenses.
+
+*   [[HTML]] will define the ways in which those CSP characteristics, along
+    with other security requirements, are evaluated within a given context,
+    similar conceptually to [=secure context=] and [=environment settings
+    object/cross-origin isolated capability=]. It will additionally define
+    [=browsing context group=] properties needed to verify the integrity of
+    an [=origin=]'s resources.
+
+*   [[FETCH]] will add integrity verification to the [=fetch=] algorithm.
+
+*   [[WEBIDL]] will define the `[IsolatedContext]` attribute, and the way it
+    relies on the changes above to control the exposure of a given WebIDL
+    construct.
+
+*   [[STORAGE]] will define the double-keying requirements of
+    [=Isolated Contexts=].
+
+# Monkey Patches # {#monkey}
+
+## Content Security Policy ## {#monkey-csp}
+
+In [[CSP]], we'll define an algorithm for evaluating the strength of the
+amalgamation of policies contained within a [=CSP list=]. We'll define a
+few supporting algorithms as well, but [[#csp-injection-mitigation]]
+is the core entry point CSP will expose to HTML.
+
+### Does a policy meaningfully mitigate injection attacks? ### {#csp-injection-mitigation}
+
+<div algorithm="meaningfully mitigates injection">
+A [=CSP list=] |policies| is said to
+<dfn for="CSP list" export local-lt="mitigate-injection">meaningfully
+mitigate injection attacks</dfn> if the following algorithm returns
+"`Meaningful`":
+
+<ol class="algorithm">
+    1.  Let |meets object requirements|, |meets base requirements|,
+        |meets script requirements|, |meets style requirements|,
+        |meets subresource requirements|, and |meets trusted type requirements|
+        be [=booleans=] whose value is `false`.
+
+    1.  [=For each=] |policy| in |policies|:
+
+        1.  If |policy|'s [=policy/disposition=] is not "`enforce`" or
+            |policy|'s [=policy/source=] is not "`header`",
+            [=iteration/continue=].
+
+        1.  If |policy| [=policy/sufficiently mitigates plugins=], set
+            |meets object requirements| to `true`. 
+
+        1.  If |policy| [=policy/sufficiently mitigates relative URL manipulation=], set
+            |meets base requirements| to `true`. 
+
+        1.  If |policy| [=policy/sufficiently mitigates script execution=], set
+            |meets script requirements| to `true`.
+
+        1.  If |policy| [=policy/sufficiently mitigates style evaluation=], set
+            |meets style requirements| to `true`. 
+
+        1.  If |policy| [=policy/sufficiently blocks insecure subresources=], set
+            |meets subresource requirements| to `true`.
+
+        1.  If |policy| [=policy/sufficiently mitigates DOM sinks=], set
+            |meets trusted type requirements| to `true`. 
+
+    1.  Return "`Meaningful`" if |meets object requirements|,
+        |meets base requirements|, |meets script requirements|,
+        |meets style requirements|, |meets subresource requirements|, and
+        |meets trusted type requirements| are all `true`.
+
+    1. Return "`Not meaningful enough`".
+</ol>
+</div>
+
+### Obtain the active directive for a type ### {#csp-active-directive}
+
+<div algorithm="get active directive">
+CSP defines a fallback chain for some directives which we need to account for
+when evaluating a given policy. To <dfn abstract-op lt="obtain-directive">obtain
+the active directive</dfn> given a [=policy=] |policy| and a |directive name|:
+
+<ol class="algorithm">
+    1.  Let |fallback chain| be the result of executing <a abstract-op>Get fetch
+        directive fallback list</a> on |directive name|.
+
+    1.  [=For each=] |name| in |fallback chain|:
+
+        1.  If |policy|'s [=policy/directive set=] [=set/contains=] a
+            [=directive=] |directive| whose [=directive/name=] is |name|,
+            return |directive|.
+
+    1.  Return null.
+</ol>
+</div>
+
+### Does a policy sufficiently mitigate plugins? ### {#csp-plugin-mitigation}
+
+<div algorithm="object requirements">
+A [=policy=] |policy| <dfn for="policy">sufficiently mitigates plugins</dfn> if
+the following algorithm returns "`Sufficient`":
+
+<ol class="algorithm">
+    1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive| from
+        |policy|, given "`object-src`".
+
+    1.  Return "`Sufficient`" if all of the following are true:
+
+        *   |active directive| is not null
+        *   |active directive|'s [=directive/value=]'s [=set/size=] is 1
+        *   |active directive|'s [=directive/value=][0] is an
+            [=ASCII case-insensitive=] match for the string "`'none'`".
+
+    1.  Return "`Not sufficient`".
+</ol>
+</div>
+
+### Does a policy sufficiently mitigate relative URL manipulation? ### {#csp-relative-url}
+
+<div algorithm="base requirements">
+A [=policy=] |policy| <dfn for="policy">sufficiently mitigates relative URL
+manipulation</dfn> if the following algorithm returns "`Sufficient`":
+
+<ol class="algorithm">
+    1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
+
+        1.  Return "`Sufficient`" if all of the following are true:
+
+            *   |directive|'s [=directive/name=] is "`base-uri`".
+            *   |directive|'s [=directive/value=]'s [=set/size=] is 1
+            *   |directive|'s [=directive/value=][0] is an
+                [=ASCII case-insensitive=] match for either the string
+                "`'none'`" or the string "`'self'`".
+
+    1.  Return "`Not sufficient`".
+</ol>
+</div>
+
+### Does a policy sufficiently mitigate script execution? ### {#csp-script-mitigation}
+
+<div algorithm="script requirements">
+A [=policy=] |policy| <dfn for="policy">sufficiently mitigates script execution</dfn>
+if the following algorithm returns "`Sufficient`":
+
+<ol class="algorithm">
+    1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive| from
+        |policy|, given "`script-src`".
+
+    1.  Return "`Sufficient`" if all of the following are true:
+
+        *   |active directive| is not null
+        *   All [=source expressions=] in |active directive| are an
+            [=ASCII case-insensitive=] match for the string "`'none'`",
+            "`'self'`", or "`'wasm-unsafe-eval'`".
+
+    1.  Return "`Not sufficient`".
+</ol>
+</div>
+
+### Does a policy sufficiently mitigate style evaluation? ### {#csp-style-mitigation}
+
+<div algorithm="style requirements">
+A [=policy=] |policy| <dfn for="policy">sufficiently mitigates style evaluation</dfn> if
+the following algorithm returns "`Sufficient`":
+
+<ol class="algorithm">
+    1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
+        1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive| from
+            |policy|, given "`style-src`".
+
+        1.  Return "`Sufficient`" if all of the following are true:
+
+            *   |directive|'s [=directive/name=] is "`style-src`".
+            *   All [=source expressions=] in |active directive| are an
+                [=ASCII case-insensitive=] match for the string "`'none'`",
+                "`'self'`", or "`'unsafe-inline'`".
+
+    1.  Return "`Not sufficient`".
+</ol>
+</div>
+
+### Does a policy sufficiently block insecure subresources? ### {#csp-subresources}
+
+<div algorithm="subresource requirements">
+A [=policy=] |policy| <dfn for="policy">sufficiently blocks insecure
+subresources</dfn> if the following algorithm returns "`Sufficient`":
+
+<ol class="algorithm">
+    1.  [=For each=] |directive name| in the set [`frame-src`, `connect-src`,
+        `img-src`, `media-src`, `font-src`]:
+        1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive|
+            from |policy|, given |directive name|.
+
+        1.  Return "`not sufficient`" if any [=source expression=] in
+            |active directive| is **not** an [=ASCII case-insensitive=] match
+            for the strings "`'none'`", "`'self'`", "`https:`", "`blob:`",
+            or "`data:`".
+
+    1.  Return "`Sufficient`"
+</ol>
+</div>
+
+### Does a policy sufficiently mitigate DOM sinks? ### {#csp-sink-mitigation}
+
+<div algorithm="trusted type requirements">
+A [=policy=] |policy| <dfn for="policy">sufficiently mitigates DOM sinks</dfn>
+if the following algorithm returns "`Sufficient`":
+
+<ol class="algorithm">
+    1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
+
+        1.  Return "`Sufficient`" if all of the following are true:
+
+            *   |directive|'s [=directive/name=] is
+                "`require-trusted-types-for`". [[!TRUSTED-TYPES]]
+            *   |directive|'s [=directive/value=] [=set/contains=][0] an
+                [=ASCII case-insensitive=] match for the string "`'script'`".
+
+    1.  Return "`Not sufficient`".
+</ol>
+</div>
+
+### Example ### {#csp-example}
+
+The following CSP
+<a for="CSP list" lt="mitigate-injection">meaningfully mitigates injection
+attacks</a>:
+
+<pre class="example">
+base-uri 'none';
+default-src 'self';
+object-src 'none';
+script-src 'self' 'wasm-unsafe-eval';
+style-src 'self' 'unsafe-inline';
+frame-src 'self' https: blob: data:;
+connect-src 'self' https: blob: data:;
+img-src 'self' https: blob: data:;
+media-src 'self' https: blob: data:;
+font-src 'self' blob: data:;
+require-trusted-types-for 'script';
+</pre>
+
+### Does a policy meaningfully mitigate UI Redressing attacks? ### {#csp-ui-redressing-mitigation}
+
+<div algorithm="meaningfully mitigates ui redressing">
+A [=CSP list=] |policies| is said to
+<dfn for="CSP list" export local-lt="mitigate-ui-redressing">meaningfully
+mitigate UI Redressing attacks</dfn> [[UISECURITY]] if the following algorithm
+returns "`Meaningful`":
+
+<ol class="algorithm">
+    1.  [=For each=] |policy| in |policies|:
+
+        1.  If |policy|'s [=policy/disposition=] is not "`enforce`" or
+            |policy|'s [=policy/source=] is not "`header`",
+            [=iteration/continue=].
+
+        1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
+
+            1.  Return "`Meaningful`" if all of the following are true:
+
+                *   |directive|'s [=directive/name=] is "`frame-ancestors`".
+                *   |directive|'s [=directive/value=]'s [=set/size=] is 1
+                *   |directive|'s [=directive/value=][0] is an
+                    [=ASCII case-insensitive=] match for either the string
+                    "`'none'`" or the string "`'self'`".
+
+    1. Return "`Not meaningful enough`".
+</ol>
+</div>
+
+
+## HTML ## {#monkey-html}
+
+In HTML, we'll define a few properties used for resource integrity verification,
+and some algorithms used in combination with those defined in
+[[#monkey-csp]] to define characteristics of the
+[=environment settings object=]. These characteristics will be examined from
+[[WEBIDL]] when determining whether or not a given IDL construct is exposed on
+the associated [=environment settings object/global object=].
+
+### Integrity ### {#html-integrity}
+
+A [=browsing context group=] has an <dfn for="browsing context group" export>
+integrity origin</dfn>, which is an [=origin=] or `null`.
+
+A [=browsing context group=] has an <dfn for="browsing context group" export>
+integrity verification algorithm</dfn>, which is `null` or a [=user agent=]
+defined algorithm that accepts a [=request=] and a [=response=], and returns a
+[=boolean=]. A [=browsing context group=]'s [=integrity verification algorithm=]
+MUST be non-null if its [=integrity origin=] is non-null.
+
+Note: A typical [=integrity verification algorithm=] might verify that a
+response body hashes to an expected value, or that it originated from a known
+bundle of resources.
+
+### Environment Settings Object properties ### {#html-environment-properties}
+
+<div algorithm="environment settings object mitigates injection">
+An [=environment settings object=] is said to
+<dfn for="environment settings object" export>meaningfully mitigate injection
+attacks</dfn> if its [=environment settings object/policy container=]'s
+[=policy container/CSP list=] <a for="CSP list" lt="mitigate-injection">
+meaningfully mitigates injection attacks</a>.
+</div>
+
+<div algorithm="environment settings object mitigates ui redressing">
+An [=environment settings object=] is said to
+<dfn for="environment settings object" export>mitigate UI Redressing attacks
+</dfn> if its [=environment settings object/policy container=]'s
+[=policy container/CSP list=] <a for="CSP list" lt="mitigate-ui-redressing">
+meaningfully mitigates UI Redressing attacks</a>.
+</div>
+
+Note: Because the definition of meaningful injection and UI Redressing
+mitigation for a CSP list depends only upon the header-delivered policies,
+these properties will not mutate during an environment's lifetime.
+
+<div algorithm="environment settings object enforces isolation and integrity">
+An [=environment settings object=] |environment| is said to
+<dfn for="environment settings object" export>
+enforce isolation and integrity</dfn> if the following algorithm returns `true`:
+    1.  Let |browsing context group| be the [=browsing context group=] that 
+        |environment| belongs to.
+    1.  If |environment| does not [=environment settings object/meaningfully
+        mitigate injection attacks=], return `false`.
+    1.  If |browsing context group|'s [=cross-origin isolated capability=] is
+        not [=concrete=], return `false`.
+    1.  If |environment| does not [=environment settings object/mitigate UI
+        Redressing attacks=], return `false`.
+    1.  If |browsing context group|'s [=browsing context group/integrity
+        origin=] is null, return `false`.
+    1.  If |environment|'s [=origin=] is not equal to [=browsing context group/
+        integrity origin=], return `false`.
+    1.  Return `true`.
+</div>
+
+
+## Fetch ## {#monkey-fetch}
+
+In Fetch, we'll use the [=integrity verification algorithm=] defined in
+[[#html-integrity]] to verify that responses have the expected contents.
+
+### Verify the integrity of a response ### {#fetch-verify-response}
+<div algorithm>
+To <dfn>verify the integrity of a response</dfn> given a [=request=] |request|
+and a [=response=] |response|:
+
+<ol>
+  <li>Let |client| be |request|'s [=request/client=].</li>
+  <li>If |client| is `null`, return "`not applicable`".</li>
+  <li>
+    Let |browsing context group| be the [=browsing context group=] that
+    |client| belongs to.
+  </li>
+  <li>
+    Let |integrity origin| be |browsing context group|'s [=integrity origin=].
+  </li>
+  <li>
+    Let |integrity verification algorithm| be |browsing context group|'s
+    [=integrity verification algorithm=].
+  </li>
+  <li>
+    If |integrity origin| or |integrity verification algorithm| are `null`,
+    return "`not applicable`".
+  </li>
+  <li>
+    If |request|'s [=request/origin=] is not equal to |integrity origin|,
+    return "`not applicable`".
+  </li>
+  <li>
+    If |response|'s [=response/body=] is `null`, return "`invalid`".
+  </li>
+  <li>
+    If the result of executing |integrity verification algorithm| given
+    |request| and |response| is `false`, return "`invalid`".
+  </li>
+  <li>
+    Return "`valid`".
+  </li>
+</ol>
+</div>
+
+### Patches to the "Main Fetch" algorithm ### {#fetch-main-fetch}
+The [=main fetch=] algorithm is extended as follows:
+
+<div algorithm>
+To <dfn id="monkey-main-fetch">main fetch</dfn>, given a
+[=fetch params=] |fetchParams| and an optional boolean
+<var ignore>recursive</var> (default false), run these steps:
+
+<ol>
+  <li>Let |request| be |fetchParams|'s [=fetch params/request=].</li>
+  <li>Let |response| be `null`.</li>
+  <li value="22">
+    If |request|'s [=integrity metadata=] is not the empty string, then:
+    <ol><li>...</li></ol>
+  </li>
+  <li><ins>
+    If the result of executing [=verify the integrity of a response=] given
+    |request| and |response| is "`invalid`", then run
+    <a href="https://fetch.spec.whatwg.org/#fetch-finale">fetch response
+    handover</a> given |fetchParams| and a [=network error=].
+  </ins></li>
+  <li>
+    Otherwise, run <a href="https://fetch.spec.whatwg.org/#fetch-finale">fetch
+    response handover</a> given |fetchParams| and |response|.
+  </li>
+</ol>
+</div>
+
+NOTE: Ideally we would integrate integrity verification with [[SRI]]'s
+[=integrity metadata=] and its supporting algorithms. That would require a
+non-trivial refactoring of how the [[SRI]] specification handles
+[=integrity metadata=] strings, which may be worth pursuing in the future.
+
+
+## WebIDL ## {#monkey-webidl}
+
+In WebIDL, we'll define the `[IsolatedContext]` attribute, and wire it up to
+the hook created in HTML above:
+
+<h4 id="IsolatedContext" extended-attribute lt="IsolatedContext">
+  [IsolatedContext]
+</h4>
 
 If the [{{IsolatedContext}}] [=extended attribute=] appears on an
 [=interface=],
@@ -44,6 +570,104 @@ If the [{{IsolatedContext}}] [=extended attribute=] appears on an
 [=interface mixin member=], or
 [=namespace member=],
 it indicates that the construct is [=exposed=]
-only within a [=isolated context=].
+only within an [=isolated context=].
 The [{{IsolatedContext}}] extended attribute must not be used
 on any other construct.
+
+The [{{IsolatedContext}}] extended attribute must
+[=takes no arguments|take no arguments=].
+
+If [{{IsolatedContext}}] appears on an [=overloaded=] [=operation=],
+then it must appear on all overloads.
+
+The [{{IsolatedContext}}] [=extended attribute=] must not be specified both on
+
+* an [=interface member=] and its [=interface=] or [=partial interface=];
+* an [=interface mixin member=] and its [=interface mixin=] or
+    [=partial interface mixin=];
+* a [=namespace member=] and its [=namespace=] or [=partial namespace=].
+
+Note: This is because adding the [{{IsolatedContext}}] [=extended attribute=]
+on a [=member=] when its containing definition is also annotated with the
+[{{IsolatedContext}}] [=extended attribute=] does not further restrict the
+exposure of the [=member=].
+
+An [=interface=] without the [{{IsolatedContext}}] [=extended attribute=]
+must not [=interface/inherit=] from another interface
+that does specify [{{IsolatedContext}}].
+
+### Patches to the "exposed" algorithm ### {#monkey-webidl-exposed}
+
+WebIDL's [=exposed=] algorithm is adjusted as follows, adding a single step
+after similarly handling [{{CrossOriginIsolated}}] (step 4 below).
+
+<div algorithm>
+  An [=interface=], [=callback interface=], [=namespace=], or [=member=]
+  |construct| is <dfn id="dfn-exposed" export>exposed</dfn> in a given
+  [=realm=] |realm| if the following steps return true:
+
+  <ol>
+    <li>
+      If |construct|'s [=exposure set=] is not <code>*</code>, and
+      |realm|.\[[GlobalObject]] does not implement an [=interface=] that is in
+      |construct|'s [=exposure set=], then return false.
+    </li>
+    <li>
+      If |realm|'s [=realm/settings object=] is not a [=secure context=], and
+      |construct| is [=conditionally exposed=] on [{{SecureContext}}], then
+      return false.
+    </li>
+    <li>
+      If |realm|'s [=realm/settings object=]'s
+      [=environment settings object/cross-origin isolated capability=] is false,
+      and |construct| is [=conditionally exposed=] on [{{CrossOriginIsolated}}],
+      then return false.
+    </li>
+    <li><ins>
+        If |realm|'s [=realm/settings object=] does not
+        [=environment settings object/enforce isolation and integrity=], and
+        |construct| is [=conditionally exposed=] on [{{IsolatedContext}}], then
+        return `false`.
+    </ins></li>
+    <li>Return true.</li>
+  </ol>
+</div>
+
+## Storage ## {#monkey-storage}
+
+The [=obtain a storage key for non-storage purposes=] algorithm is extended to
+require double-keying on all storage within a [=browsing context group=]
+containing [=Isolated Contexts=].
+
+<div algorithm="obtain a storage key for non-storage purposes isolated context">
+To obtain a storage key for non-storage purposes, given an
+<a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">
+environment</a> |environment|, run these steps:
+
+<ol>
+    <li>
+      Let |origin| be |environment|'s [=environment settings object/origin=] if
+      |environment| is an [=environment settings object=]; otherwise
+      |environment|'s [=creation URL=]'s [=origin=].
+    </li>
+
+    <li><ins>
+      Let |integrity origin| be the [=browsing context group/integrity origin=]
+      of the [=browsing context group=] that |environment| belongs to.
+    </ins></li>
+
+    <li><ins>
+      If |integrity origin| is non-null, return a [=tuple=] consisting of
+      |integrity origin| and |origin|.
+    </ins></li>
+
+    <li>
+      Return a [=tuple=] consisting of |origin|.
+    </li>
+</ol>
+</div>
+
+Note: This is essentially a poorly specified version of
+<a href="https://privacycg.github.io/storage-partitioning/">
+Client-Side Storage Partitioning</a>. When that is fully specified and merged
+into the necessary specifications, this section will no longer be needed.
