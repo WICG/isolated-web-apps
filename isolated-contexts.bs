@@ -64,7 +64,7 @@ the [Isolated Web Apps Explainer](https://github.com/WICG/isolated-web-apps).
 
 <dfn export>Isolated context</dfn> will be defined here.
 
-This is a monkey patch specificiation that makes the following modifications:
+This is a monkey patch specification that makes the following modifications:
 
 *   [[CSP]] will define the characteristics of a policy that's robust enough to
     meaningfully defend against attack. It builds on what we've learned from
@@ -516,7 +516,8 @@ The [{{IsolatedContext}}] extended attribute must
 If [{{IsolatedContext}}] appears on an [=overloaded=] [=operation=],
 then it must appear on all overloads.
 
-The [{{IsolatedContext}}] [=extended attribute=] must not be specified both on
+The [{{IsolatedContext}}] [=extended attribute=] must not be specified on more
+than one of the following:
 
 * an [=interface member=] and its [=interface=] or [=partial interface=];
 * an [=interface mixin member=] and its [=interface mixin=] or
@@ -603,7 +604,8 @@ environment</a> |environment|, run these steps:
 </ol>
 </div>
 
-Note: This is essentially a poorly specified version of
+Note: This is essentially a minimally-specified version of
 <a href="https://privacycg.github.io/storage-partitioning/">
 Client-Side Storage Partitioning</a>. When that is fully specified and merged
-into the necessary specifications, this section will no longer be needed.
+into the necessary specifications, those changes will supersede this section,
+and it can be removed.
