@@ -4,9 +4,9 @@
   <title>Isolated Contexts</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version d765c696b, updated Fri Mar 8 15:58:52 2024 -0800" name="generator">
+  <meta content="Bikeshed version a1dabb26c, updated Mon Jun 17 15:00:44 2024 -0700" name="generator">
   <link href="https://wicg.github.io/isolated-web-apps/isolated-contexts" rel="canonical">
-  <meta content="4a3320d77998121e81b4a0216e9c2ef3a89ea52d" name="revision">
+  <meta content="8636e14af75c5a04462899c8620ad2112c58ab05" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -564,11 +564,32 @@ a.self-link::before            { content: "¶"; }
 .heading > a.self-link::before { content: "§"; }
 dfn > a.self-link::before      { content: "#"; }
 </style>
+<style>/* Boilerplate: style-var-click-highlighting */
+/*
+Colors were chosen in Lab using https://nixsensor.com/free-color-converter/
+D50 2deg illuminant, L in [0,100], a and b in [-128, 128]
+0 = lab(85,0,85)
+1 = lab(85,80,30)
+2 = lab(85,-40,40)
+3 = lab(85,-50,0)
+4 = lab(85,5,15)
+5 = lab(85,-10,-50)
+6 = lab(85,35,-15)
+*/
+[data-algorithm] var { cursor: pointer; }
+var[data-var-color="0"] { background-color: #F4D200; box-shadow: 0 0 0 2px #F4D200; }
+var[data-var-color="1"] { background-color: #FF87A2; box-shadow: 0 0 0 2px #FF87A2; }
+var[data-var-color="2"] { background-color: #96E885; box-shadow: 0 0 0 2px #96E885; }
+var[data-var-color="3"] { background-color: #3EEED2; box-shadow: 0 0 0 2px #3EEED2; }
+var[data-var-color="4"] { background-color: #EACFB6; box-shadow: 0 0 0 2px #EACFB6; }
+var[data-var-color="5"] { background-color: #82DDFF; box-shadow: 0 0 0 2px #82DDFF; }
+var[data-var-color="6"] { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBCF2; }
+</style>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Isolated Contexts</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-05-08">8 May 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-06-26">26 June 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -586,7 +607,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   </div>
   <div class="p-summary" data-fill-with="abstract">
    <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
-   <p>This specification defines "isolated contexts", which allows user agent
+   <p>This specification defines "isolated contexts", which allow user agent
 implementers and specification authors to enable certain features only when
 minimum standards of isolation and integrity are met.</p>
   </div>
@@ -605,7 +626,45 @@ minimum standards of isolation and integrity are met.</p>
   <nav data-fill-with="table-of-contents" id="toc">
    <h2 class="no-num no-toc no-ref" id="contents">Table of Contents</h2>
    <ol class="toc" role="directory">
-    <li><a href="#IsolatedContext"><span class="secno">1</span> <span class="content">[IsolatedContext]</span></a>
+    <li><a href="#introduction"><span class="secno">1</span> <span class="content">Introduction</span></a>
+    <li><a href="#isolated-contexts"><span class="secno">2</span> <span class="content">Isolated Contexts</span></a>
+    <li>
+     <a href="#monkey"><span class="secno">3</span> <span class="content">Monkey Patches</span></a>
+     <ol class="toc">
+      <li>
+       <a href="#monkey-csp"><span class="secno">3.1</span> <span class="content">Content Security Policy</span></a>
+       <ol class="toc">
+        <li><a href="#csp-injection-mitigation"><span class="secno">3.1.1</span> <span class="content">Does a policy meaningfully mitigate injection attacks?</span></a>
+        <li><a href="#csp-active-directive"><span class="secno">3.1.2</span> <span class="content">Obtain the active directive for a type</span></a>
+        <li><a href="#csp-plugin-mitigation"><span class="secno">3.1.3</span> <span class="content">Does a policy sufficiently mitigate plugins?</span></a>
+        <li><a href="#csp-relative-url"><span class="secno">3.1.4</span> <span class="content">Does a policy sufficiently mitigate relative URL manipulation?</span></a>
+        <li><a href="#csp-script-mitigation"><span class="secno">3.1.5</span> <span class="content">Does a policy sufficiently mitigate script execution?</span></a>
+        <li><a href="#csp-style-mitigation"><span class="secno">3.1.6</span> <span class="content">Does a policy sufficiently mitigate style evaluation?</span></a>
+        <li><a href="#csp-subresources"><span class="secno">3.1.7</span> <span class="content">Does a policy sufficiently block insecure subresources?</span></a>
+        <li><a href="#csp-sink-mitigation"><span class="secno">3.1.8</span> <span class="content">Does a policy sufficiently mitigate DOM sinks?</span></a>
+        <li><a href="#csp-example"><span class="secno">3.1.9</span> <span class="content">Example</span></a>
+        <li><a href="#csp-ui-redressing-mitigation"><span class="secno">3.1.10</span> <span class="content">Does a policy meaningfully mitigate UI Redressing attacks?</span></a>
+       </ol>
+      <li>
+       <a href="#monkey-html"><span class="secno">3.2</span> <span class="content">HTML</span></a>
+       <ol class="toc">
+        <li><a href="#html-integrity"><span class="secno">3.2.1</span> <span class="content">Integrity</span></a>
+        <li><a href="#html-environment-properties"><span class="secno">3.2.2</span> <span class="content">Environment Settings Object properties</span></a>
+       </ol>
+      <li>
+       <a href="#monkey-fetch"><span class="secno">3.3</span> <span class="content">Fetch</span></a>
+       <ol class="toc">
+        <li><a href="#fetch-verify-response"><span class="secno">3.3.1</span> <span class="content">Verify the integrity of a response</span></a>
+        <li><a href="#fetch-main-fetch"><span class="secno">3.3.2</span> <span class="content">Patches to the "Main Fetch" algorithm</span></a>
+       </ol>
+      <li>
+       <a href="#monkey-webidl"><span class="secno">3.4</span> <span class="content">WebIDL</span></a>
+       <ol class="toc">
+        <li><a href="#IsolatedContext"><span class="secno">3.4.1</span> <span class="content"> [IsolatedContext] </span></a>
+        <li><a href="#monkey-webidl-exposed"><span class="secno">3.4.2</span> <span class="content">Patches to the "exposed" algorithm</span></a>
+       </ol>
+      <li><a href="#monkey-storage"><span class="secno">3.5</span> <span class="content">Storage</span></a>
+     </ol>
     <li>
      <a href="#w3c-conformance"><span class="secno"></span> <span class="content">Conformance</span></a>
      <ol class="toc">
@@ -621,19 +680,410 @@ minimum standards of isolation and integrity are met.</p>
      <a href="#references"><span class="secno"></span> <span class="content">References</span></a>
      <ol class="toc">
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
+      <li><a href="#informative"><span class="secno"></span> <span class="content">Informative References</span></a>
      </ol>
    </ol>
   </nav>
   <main>
-   <h1 id="introduction">Introduction</h1>
-   <p>This specification is currently being drafted. In the meantime, please see the <a href="https://github.com/WICG/isolated-web-apps">Isolated Web Apps Explainer</a>.</p>
-   <h1 id="isolated-contexts">Isolated Contexts</h1>
+   <h2 class="heading settled" data-level="1" id="introduction"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#introduction"></a></h2>
+   <p>This specification is currently being drafted. For more background, please see
+the <a href="https://github.com/WICG/isolated-web-apps">Isolated Web Apps Explainer</a>.</p>
+   <h2 class="heading settled" data-level="2" id="isolated-contexts"><span class="secno">2. </span><span class="content">Isolated Contexts</span><a class="self-link" href="#isolated-contexts"></a></h2>
    <p><dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="isolated-context">Isolated context</dfn> will be defined here.</p>
-   <h2 class="heading settled dfn-paneled idl-code" data-dfn-type="extended-attribute" data-export data-level="1" data-lt="IsolatedContext" id="IsolatedContext"><span class="secno">1. </span><span class="content">[IsolatedContext]</span><a class="self-link" href="#IsolatedContext" id="ref-for-IsolatedContext"></a></h2>
-   <p>If the [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext②">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute">extended attribute</a> appears on an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface">interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-interface" id="ref-for-dfn-partial-interface">partial interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin" id="ref-for-interface-mixin">interface mixin</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#partial-interface-mixin" id="ref-for-partial-interface-mixin">partial interface mixin</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-callback-interface" id="ref-for-dfn-callback-interface">callback interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace" id="ref-for-dfn-namespace">namespace</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-namespace" id="ref-for-dfn-partial-namespace">partial namespace</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface-member" id="ref-for-dfn-interface-member">interface member</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin-member" id="ref-for-interface-mixin-member">interface mixin member</a>, or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace-member" id="ref-for-dfn-namespace-member">namespace member</a>,
-it indicates that the construct is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-exposed" id="ref-for-dfn-exposed">exposed</a> only within a <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context">isolated context</a>.
+   <p>This is a monkey patch specification that makes the following modifications:</p>
+   <ul>
+    <li data-md>
+     <p><a data-link-type="biblio" href="#biblio-csp" title="Content Security Policy Level 3">[CSP]</a> will define the characteristics of a policy that’s robust enough to
+meaningfully defend against attack. It builds on what we’ve learned from
+explorations like <a data-link-type="biblio" href="#biblio-strict-csp" title="Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)">[strict-csp]</a> and <a data-link-type="biblio" href="#biblio-securer-contexts" title="Securer Contexts">[securer-contexts]</a>, pushing
+developers towards well-understood and valuable defenses.</p>
+    <li data-md>
+     <p><a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[HTML]</a> will define the ways in which those CSP characteristics, along
+with other security requirements, are evaluated within a given context,
+similar conceptually to <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#secure-context" id="ref-for-secure-context">secure context</a> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability">cross-origin isolated capability</a>. It will additionally define <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group">browsing context group</a> properties needed to verify the integrity of
+an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin">origin</a>'s resources.</p>
+    <li data-md>
+     <p><a data-link-type="biblio" href="#biblio-fetch" title="Fetch Standard">[FETCH]</a> will add integrity verification to the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> algorithm.</p>
+    <li data-md>
+     <p><a data-link-type="biblio" href="#biblio-webidl" title="Web IDL Standard">[WEBIDL]</a> will define the <code>[IsolatedContext]</code> attribute, and the way it
+relies on the changes above to control the exposure of a given WebIDL
+construct.</p>
+    <li data-md>
+     <p><a data-link-type="biblio" href="#biblio-storage" title="Storage Standard">[STORAGE]</a> will define the double-keying requirements of <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context">Isolated Contexts</a>.</p>
+   </ul>
+   <h2 class="heading settled" data-level="3" id="monkey"><span class="secno">3. </span><span class="content">Monkey Patches</span><a class="self-link" href="#monkey"></a></h2>
+   <h3 class="heading settled" data-level="3.1" id="monkey-csp"><span class="secno">3.1. </span><span class="content">Content Security Policy</span><a class="self-link" href="#monkey-csp"></a></h3>
+   <p>In <a data-link-type="biblio" href="#biblio-csp" title="Content Security Policy Level 3">[CSP]</a>, we’ll define an algorithm for evaluating the strength of the
+amalgamation of policies contained within a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#csp-list" id="ref-for-csp-list">CSP list</a>. We’ll define a
+few supporting algorithms as well, but <a href="#csp-injection-mitigation">§ 3.1.1 Does a policy meaningfully mitigate injection attacks?</a> is the core entry point CSP will expose to HTML.</p>
+   <h4 class="heading settled" data-level="3.1.1" id="csp-injection-mitigation"><span class="secno">3.1.1. </span><span class="content">Does a policy meaningfully mitigate injection attacks?</span><a class="self-link" href="#csp-injection-mitigation"></a></h4>
+   <div class="algorithm" data-algorithm="meaningfully mitigates injection">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#csp-list" id="ref-for-csp-list①">CSP list</a> <var>policies</var> is said to <dfn class="dfn-paneled" data-dfn-for="CSP list" data-dfn-type="dfn" data-export data-local-lt="mitigate-injection" data-lt="meaningfully mitigate injection attacks" id="csp-list-meaningfully-mitigate-injection-attacks">meaningfully
+mitigate injection attacks</dfn> if the following algorithm returns
+"<code>Meaningful</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p>Let <var>meets object requirements</var>, <var>meets base requirements</var>, <var>meets script requirements</var>, <var>meets style requirements</var>, <var>meets subresource requirements</var>, and <var>meets trusted type requirements</var> be <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean">booleans</a> whose values are <code>false</code>.</p>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>policy</var> in <var>policies</var>:</p>
+      <ol>
+       <li data-md>
+        <p>If <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-disposition" id="ref-for-policy-disposition">disposition</a> is not "<code>enforce</code>" or <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-source" id="ref-for-policy-source">source</a> is not "<code>header</code>", <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue">continue</a>.</p>
+       <li data-md>
+        <p>If <var>policy</var> <a data-link-type="dfn" href="#policy-sufficiently-mitigates-plugins" id="ref-for-policy-sufficiently-mitigates-plugins">sufficiently mitigates plugins</a>, set <var>meets object requirements</var> to <code>true</code>.</p>
+       <li data-md>
+        <p>If <var>policy</var> <a data-link-type="dfn" href="#policy-sufficiently-mitigates-relative-url-manipulation" id="ref-for-policy-sufficiently-mitigates-relative-url-manipulation">sufficiently mitigates relative URL manipulation</a>, set <var>meets base requirements</var> to <code>true</code>.</p>
+       <li data-md>
+        <p>If <var>policy</var> <a data-link-type="dfn" href="#policy-sufficiently-mitigates-script-execution" id="ref-for-policy-sufficiently-mitigates-script-execution">sufficiently mitigates script execution</a>, set <var>meets script requirements</var> to <code>true</code>.</p>
+       <li data-md>
+        <p>If <var>policy</var> <a data-link-type="dfn" href="#policy-sufficiently-mitigates-style-evaluation" id="ref-for-policy-sufficiently-mitigates-style-evaluation">sufficiently mitigates style evaluation</a>, set <var>meets style requirements</var> to <code>true</code>.</p>
+       <li data-md>
+        <p>If <var>policy</var> <a data-link-type="dfn" href="#policy-sufficiently-blocks-insecure-subresources" id="ref-for-policy-sufficiently-blocks-insecure-subresources">sufficiently blocks insecure subresources</a>, set <var>meets subresource requirements</var> to <code>true</code>.</p>
+       <li data-md>
+        <p>If <var>policy</var> <a data-link-type="dfn" href="#policy-sufficiently-mitigates-dom-sinks" id="ref-for-policy-sufficiently-mitigates-dom-sinks">sufficiently mitigates DOM sinks</a>, set <var>meets trusted type requirements</var> to <code>true</code>.</p>
+      </ol>
+     <li data-md>
+      <p>Return "<code>Meaningful</code>" if <var>meets object requirements</var>, <var>meets base requirements</var>, <var>meets script requirements</var>, <var>meets style requirements</var>, <var>meets subresource requirements</var>, and <var>meets trusted type requirements</var> are all <code>true</code>.</p>
+     <li data-md>
+      <p>Return "<code>Not meaningful enough</code>".</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.2" id="csp-active-directive"><span class="secno">3.1.2. </span><span class="content">Obtain the active directive for a type</span><a class="self-link" href="#csp-active-directive"></a></h4>
+   <div class="algorithm" data-algorithm="get active directive">
+     CSP defines a fallback chain for some directives which we need to account for
+when evaluating a given policy. To <dfn class="dfn-paneled" data-dfn-type="abstract-op" data-export data-lt="obtain-directive" id="abstract-opdef-obtain-directive">obtain
+the active directive</dfn> given a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy">policy</a> <var>policy</var> and a <var>directive name</var>: 
+    <ol class="algorithm">
+     <li data-md>
+      <p>Let <var>fallback chain</var> be the result of executing <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#directive-fallback-list" id="ref-for-directive-fallback-list">Get fetch
+directive fallback list</a> on <var>directive name</var>.</p>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate①">For each</a> <var>name</var> in <var>fallback chain</var>:</p>
+      <ol>
+       <li data-md>
+        <p>If <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set">directive set</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain">contains</a> a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directives" id="ref-for-directives">directive</a> <var>directive</var> whose <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name">name</a> is <var>name</var>,
+return <var>directive</var>.</p>
+      </ol>
+     <li data-md>
+      <p>Return null.</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.3" id="csp-plugin-mitigation"><span class="secno">3.1.3. </span><span class="content">Does a policy sufficiently mitigate plugins?</span><a class="self-link" href="#csp-plugin-mitigation"></a></h4>
+   <div class="algorithm" data-algorithm="object requirements">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy①">policy</a> <var>policy</var> <dfn class="dfn-paneled" data-dfn-for="policy" data-dfn-type="dfn" data-noexport id="policy-sufficiently-mitigates-plugins">sufficiently mitigates plugins</dfn> if
+the following algorithm returns "<code>Sufficient</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="abstract-op" href="#abstract-opdef-obtain-directive" id="ref-for-abstract-opdef-obtain-directive">Obtain</a> <var>active directive</var> from <var>policy</var>, given "<code>object-src</code>".</p>
+     <li data-md>
+      <p>Return "<code>Sufficient</code>" if all of the following are true:</p>
+      <ul>
+       <li data-md>
+        <p><var>active directive</var> is not null</p>
+       <li data-md>
+        <p><var>active directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value">value</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size">size</a> is 1</p>
+       <li data-md>
+        <p><var>active directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value①">value</a>[0] is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive">ASCII case-insensitive</a> match for the string "<code>'none'</code>".</p>
+      </ul>
+     <li data-md>
+      <p>Return "<code>Not sufficient</code>".</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.4" id="csp-relative-url"><span class="secno">3.1.4. </span><span class="content">Does a policy sufficiently mitigate relative URL manipulation?</span><a class="self-link" href="#csp-relative-url"></a></h4>
+   <div class="algorithm" data-algorithm="base requirements">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy②">policy</a> <var>policy</var> <dfn class="dfn-paneled" data-dfn-for="policy" data-dfn-type="dfn" data-lt="sufficiently mitigates relative URL manipulation" data-noexport id="policy-sufficiently-mitigates-relative-url-manipulation">sufficiently mitigates relative URL
+manipulation</dfn> if the following algorithm returns "<code>Sufficient</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate②">For each</a> <var>directive</var> in <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set①">directive set</a>:</p>
+      <ol>
+       <li data-md>
+        <p>Return "<code>Sufficient</code>" if all of the following are true:</p>
+        <ul>
+         <li data-md>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name①">name</a> is "<code>base-uri</code>".</p>
+         <li data-md>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value②">value</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size①">size</a> is 1</p>
+         <li data-md>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value③">value</a>[0] is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive①">ASCII case-insensitive</a> match for either the string
+"<code>'none'</code>" or the string "<code>'self'</code>".</p>
+        </ul>
+      </ol>
+     <li data-md>
+      <p>Return "<code>Not sufficient</code>".</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.5" id="csp-script-mitigation"><span class="secno">3.1.5. </span><span class="content">Does a policy sufficiently mitigate script execution?</span><a class="self-link" href="#csp-script-mitigation"></a></h4>
+   <div class="algorithm" data-algorithm="script requirements">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy③">policy</a> <var>policy</var> <dfn class="dfn-paneled" data-dfn-for="policy" data-dfn-type="dfn" data-noexport id="policy-sufficiently-mitigates-script-execution">sufficiently mitigates script execution</dfn> if the following algorithm returns "<code>Sufficient</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="abstract-op" href="#abstract-opdef-obtain-directive" id="ref-for-abstract-opdef-obtain-directive①">Obtain</a> <var>active directive</var> from <var>policy</var>, given "<code>script-src</code>".</p>
+     <li data-md>
+      <p>Return "<code>Sufficient</code>" if all of the following are true:</p>
+      <ul>
+       <li data-md>
+        <p><var>active directive</var> is not null</p>
+       <li data-md>
+        <p>All <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#source-expression" id="ref-for-source-expression">source expressions</a> in <var>active directive</var> are an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive②">ASCII case-insensitive</a> match for the strings "<code>'none'</code>",
+"<code>'self'</code>", or "<code>'wasm-unsafe-eval'</code>".</p>
+      </ul>
+     <li data-md>
+      <p>Return "<code>Not sufficient</code>".</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.6" id="csp-style-mitigation"><span class="secno">3.1.6. </span><span class="content">Does a policy sufficiently mitigate style evaluation?</span><a class="self-link" href="#csp-style-mitigation"></a></h4>
+   <div class="algorithm" data-algorithm="style requirements">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy④">policy</a> <var>policy</var> <dfn class="dfn-paneled" data-dfn-for="policy" data-dfn-type="dfn" data-noexport id="policy-sufficiently-mitigates-style-evaluation">sufficiently mitigates style evaluation</dfn> if
+the following algorithm returns "<code>Sufficient</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate③">For each</a> <var>directive</var> in <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set②">directive set</a>:</p>
+      <ol>
+       <li data-md>
+        <p><a data-link-type="abstract-op" href="#abstract-opdef-obtain-directive" id="ref-for-abstract-opdef-obtain-directive②">Obtain</a> <var>active directive</var> from <var>policy</var>, given "<code>style-src</code>".</p>
+       <li data-md>
+        <p>Return "<code>Sufficient</code>" if all of the following are true:</p>
+        <ul>
+         <li data-md>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name②">name</a> is "<code>style-src</code>".</p>
+         <li data-md>
+          <p>All <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#source-expression" id="ref-for-source-expression①">source expressions</a> in <var>active directive</var> are an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive③">ASCII case-insensitive</a> match for the strings "<code>'none'</code>",
+"<code>'self'</code>", or "<code>'unsafe-inline'</code>".</p>
+        </ul>
+      </ol>
+     <li data-md>
+      <p>Return "<code>Not sufficient</code>".</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.7" id="csp-subresources"><span class="secno">3.1.7. </span><span class="content">Does a policy sufficiently block insecure subresources?</span><a class="self-link" href="#csp-subresources"></a></h4>
+   <div class="algorithm" data-algorithm="subresource requirements">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy⑤">policy</a> <var>policy</var> <dfn class="dfn-paneled" data-dfn-for="policy" data-dfn-type="dfn" data-lt="sufficiently blocks insecure subresources" data-noexport id="policy-sufficiently-blocks-insecure-subresources">sufficiently blocks insecure
+subresources</dfn> if the following algorithm returns "<code>Sufficient</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate④">For each</a> <var>directive name</var> in the set [<code>frame-src</code>, <code>connect-src</code>, <code>img-src</code>, <code>media-src</code>, <code>font-src</code>]:</p>
+      <ol>
+       <li data-md>
+        <p><a data-link-type="abstract-op" href="#abstract-opdef-obtain-directive" id="ref-for-abstract-opdef-obtain-directive③">Obtain</a> <var>active directive</var> from <var>policy</var>, given <var>directive name</var>.</p>
+       <li data-md>
+        <p>Return "<code>not sufficient</code>" if any <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#source-expression" id="ref-for-source-expression②">source expression</a> in <var>active directive</var> is <strong>not</strong> an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive④">ASCII case-insensitive</a> match
+for the strings "<code>'none'</code>", "<code>'self'</code>", "<code>https:</code>", "<code>blob:</code>",
+or "<code>data:</code>".</p>
+      </ol>
+     <li data-md>
+      <p>Return "<code>Sufficient</code>"</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.8" id="csp-sink-mitigation"><span class="secno">3.1.8. </span><span class="content">Does a policy sufficiently mitigate DOM sinks?</span><a class="self-link" href="#csp-sink-mitigation"></a></h4>
+   <div class="algorithm" data-algorithm="trusted type requirements">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#violation-policy" id="ref-for-violation-policy⑥">policy</a> <var>policy</var> <dfn class="dfn-paneled" data-dfn-for="policy" data-dfn-type="dfn" data-noexport id="policy-sufficiently-mitigates-dom-sinks">sufficiently mitigates DOM sinks</dfn> if the following algorithm returns "<code>Sufficient</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑤">For each</a> <var>directive</var> in <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set③">directive set</a>:</p>
+      <ol>
+       <li data-md>
+        <p>Return "<code>Sufficient</code>" if all of the following are true:</p>
+        <ul>
+         <li data-md>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name③">name</a> is
+"<code>require-trusted-types-for</code>". <a data-link-type="biblio" href="#biblio-trusted-types" title="Trusted Types">[TRUSTED-TYPES]</a></p>
+         <li data-md>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value④">value</a> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain①">contains</a>[0] an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive⑤">ASCII case-insensitive</a> match for the string "<code>'script'</code>".</p>
+        </ul>
+      </ol>
+     <li data-md>
+      <p>Return "<code>Not sufficient</code>".</p>
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.1.9" id="csp-example"><span class="secno">3.1.9. </span><span class="content">Example</span><a class="self-link" href="#csp-example"></a></h4>
+   <p>The following CSP <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-injection-attacks" id="ref-for-csp-list-meaningfully-mitigate-injection-attacks">meaningfully mitigates injection
+attacks</a>:</p>
+<pre class="example" id="example-36d1a54a"><a class="self-link" href="#example-36d1a54a"></a>base-uri 'none';
+default-src 'self';
+object-src 'none';
+script-src 'self' 'wasm-unsafe-eval';
+style-src 'self' 'unsafe-inline';
+frame-src 'self' https: blob: data:;
+connect-src 'self' https: blob: data:;
+img-src 'self' https: blob: data:;
+media-src 'self' https: blob: data:;
+font-src 'self' blob: data:;
+require-trusted-types-for 'script';
+</pre>
+   <h4 class="heading settled" data-level="3.1.10" id="csp-ui-redressing-mitigation"><span class="secno">3.1.10. </span><span class="content">Does a policy meaningfully mitigate UI Redressing attacks?</span><a class="self-link" href="#csp-ui-redressing-mitigation"></a></h4>
+   <div class="algorithm" data-algorithm="meaningfully mitigates ui redressing">
+     A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#csp-list" id="ref-for-csp-list②">CSP list</a> <var>policies</var> is said to <dfn class="dfn-paneled" data-dfn-for="CSP list" data-dfn-type="dfn" data-export data-local-lt="mitigate-ui-redressing" data-lt="meaningfully mitigate UI Redressing attacks" id="csp-list-meaningfully-mitigate-ui-redressing-attacks">meaningfully
+mitigate UI Redressing attacks</dfn> <a data-link-type="biblio" href="#biblio-uisecurity" title="User Interface Security and the Visibility API">[UISECURITY]</a> if the following algorithm
+returns "<code>Meaningful</code>": 
+    <ol class="algorithm">
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑥">For each</a> <var>policy</var> in <var>policies</var>:</p>
+      <ol>
+       <li data-md>
+        <p>If <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-disposition" id="ref-for-policy-disposition①">disposition</a> is not "<code>enforce</code>" or <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-source" id="ref-for-policy-source①">source</a> is not "<code>header</code>", <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue①">continue</a>.</p>
+       <li data-md>
+        <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑦">For each</a> <var>directive</var> in <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set④">directive set</a>:</p>
+        <ol>
+         <li data-md>
+          <p>Return "<code>Meaningful</code>" if all of the following are true:</p>
+          <ul>
+           <li data-md>
+            <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name④">name</a> is "<code>frame-ancestors</code>".</p>
+           <li data-md>
+            <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value⑤">value</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size②">size</a> is 1</p>
+           <li data-md>
+            <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value⑥">value</a>[0] is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive⑥">ASCII case-insensitive</a> match for either the string
+"<code>'none'</code>" or the string "<code>'self'</code>".</p>
+          </ul>
+        </ol>
+      </ol>
+     <li data-md>
+      <p>Return "<code>Not meaningful enough</code>".</p>
+    </ol>
+   </div>
+   <h3 class="heading settled" data-level="3.2" id="monkey-html"><span class="secno">3.2. </span><span class="content">HTML</span><a class="self-link" href="#monkey-html"></a></h3>
+   <p>In HTML, we’ll define a few properties used for resource integrity verification,
+and some algorithms used in combination with those defined in <a href="#monkey-csp">§ 3.1 Content Security Policy</a> to define characteristics of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object">environment settings object</a>. These characteristics will be examined from <a data-link-type="biblio" href="#biblio-webidl" title="Web IDL Standard">[WEBIDL]</a> when determining whether or not a given IDL construct is exposed on
+the associated <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global">global object</a>.</p>
+   <h4 class="heading settled" data-level="3.2.1" id="html-integrity"><span class="secno">3.2.1. </span><span class="content">Integrity</span><a class="self-link" href="#html-integrity"></a></h4>
+   <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group①">browsing context group</a> has an <dfn class="dfn-paneled" data-dfn-for="browsing context group" data-dfn-type="dfn" data-export data-lt="integrity origin" id="browsing-context-group-integrity-origin"> integrity origin</dfn>, which is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①">origin</a> or <code>null</code>.</p>
+   <p>A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group②">browsing context group</a> has an <dfn class="dfn-paneled" data-dfn-for="browsing context group" data-dfn-type="dfn" data-export data-lt="integrity verification algorithm" id="browsing-context-group-integrity-verification-algorithm"> integrity verification algorithm</dfn>, which is <code>null</code> or a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a> defined algorithm that accepts a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-params-request" id="ref-for-fetch-params-request">request</a> and a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response">response</a>, and returns a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean①">boolean</a>. A <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group③">browsing context group</a>'s <a data-link-type="dfn" href="#browsing-context-group-integrity-verification-algorithm" id="ref-for-browsing-context-group-integrity-verification-algorithm">integrity verification algorithm</a> MUST be non-null if its <a data-link-type="dfn" href="#browsing-context-group-integrity-origin" id="ref-for-browsing-context-group-integrity-origin">integrity origin</a> is non-null.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> A typical <a data-link-type="dfn" href="#browsing-context-group-integrity-verification-algorithm" id="ref-for-browsing-context-group-integrity-verification-algorithm①">integrity verification algorithm</a> might verify that a
+response body hashes to an expected value, or that it originated from a known
+bundle of resources.</p>
+   <h4 class="heading settled" data-level="3.2.2" id="html-environment-properties"><span class="secno">3.2.2. </span><span class="content">Environment Settings Object properties</span><a class="self-link" href="#html-environment-properties"></a></h4>
+   <div class="algorithm" data-algorithm="environment settings object mitigates injection"> An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object①">environment settings object</a> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="meaningfully mitigate injection attacks" id="environment-settings-object-meaningfully-mitigate-injection-attacks">meaningfully mitigate injection
+attacks</dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container" id="ref-for-concept-settings-object-policy-container">policy container</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list" id="ref-for-policy-container-csp-list">CSP list</a> <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-injection-attacks" id="ref-for-csp-list-meaningfully-mitigate-injection-attacks①"> meaningfully mitigates injection attacks</a>. </div>
+   <div class="algorithm" data-algorithm="environment settings object mitigates ui redressing"> An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object②">environment settings object</a> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="mitigate UI Redressing attacks" id="environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI Redressing attacks </dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container" id="ref-for-concept-settings-object-policy-container①">policy container</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list" id="ref-for-policy-container-csp-list①">CSP list</a> <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-ui-redressing-attacks" id="ref-for-csp-list-meaningfully-mitigate-ui-redressing-attacks"> meaningfully mitigates UI Redressing attacks</a>. </div>
+   <p class="note" role="note"><span class="marker">Note:</span> Because the definition of meaningful injection and UI Redressing
+mitigation for a CSP list depends only upon the header-delivered policies,
+these properties will not mutate during an environment’s lifetime.</p>
+   <div class="algorithm" data-algorithm="environment settings object enforces isolation and integrity">
+     An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object③">environment settings object</a> <var>environment</var> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="enforce isolation and integrity" id="environment-settings-object-enforce-isolation-and-integrity"> enforce isolation and integrity</dfn> if the following algorithm returns <code>true</code>: 
+    <ol>
+     <li data-md>
+      <p>Let <var>browsing context group</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group④">browsing context group</a> that <var>environment</var> belongs to.</p>
+     <li data-md>
+      <p>If <var>environment</var> does not <a data-link-type="dfn" href="#environment-settings-object-meaningfully-mitigate-injection-attacks" id="ref-for-environment-settings-object-meaningfully-mitigate-injection-attacks">meaningfully
+mitigate injection attacks</a>, return <code>false</code>.</p>
+     <li data-md>
+      <p>If <var>browsing context group</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability①">cross-origin isolated capability</a> is
+not <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#cross-origin-isolation-concrete" id="ref-for-cross-origin-isolation-concrete">concrete</a>, return <code>false</code>.</p>
+     <li data-md>
+      <p>If <var>environment</var> does not <a data-link-type="dfn" href="#environment-settings-object-mitigate-ui-redressing-attacks" id="ref-for-environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI
+Redressing attacks</a>, return <code>false</code>.</p>
+     <li data-md>
+      <p>If <var>browsing context group</var>’s <a data-link-type="dfn" href="#browsing-context-group-integrity-origin" id="ref-for-browsing-context-group-integrity-origin①">integrity
+origin</a> is null, return <code>false</code>.</p>
+     <li data-md>
+      <p>If <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②">origin</a> is not equal to <a data-link-type="dfn" href="#browsing-context-group-integrity-origin" id="ref-for-browsing-context-group-integrity-origin②"> integrity origin</a>, return <code>false</code>.</p>
+     <li data-md>
+      <p>Return <code>true</code>.</p>
+    </ol>
+   </div>
+   <h3 class="heading settled" data-level="3.3" id="monkey-fetch"><span class="secno">3.3. </span><span class="content">Fetch</span><a class="self-link" href="#monkey-fetch"></a></h3>
+   <p>In Fetch, we’ll use the <a data-link-type="dfn" href="#browsing-context-group-integrity-verification-algorithm" id="ref-for-browsing-context-group-integrity-verification-algorithm②">integrity verification algorithm</a> defined in <a href="#html-integrity">§ 3.2.1 Integrity</a> to verify that responses have the expected contents.</p>
+   <h4 class="heading settled" data-level="3.3.1" id="fetch-verify-response"><span class="secno">3.3.1. </span><span class="content">Verify the integrity of a response</span><a class="self-link" href="#fetch-verify-response"></a></h4>
+   <div class="algorithm" data-algorithm="verify the integrity of a response">
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="verify-the-integrity-of-a-response">verify the integrity of a response</dfn> given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-params-request" id="ref-for-fetch-params-request①">request</a> <var>request</var> and a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①">response</a> <var>response</var>: 
+    <ol>
+     <li>Let <var>client</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client">client</a>.
+     <li>If <var>client</var> is <code>null</code>, return "<code>not applicable</code>".
+     <li> Let <var>browsing context group</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group⑤">browsing context group</a> that <var>client</var> belongs to. 
+     <li> Let <var>integrity origin</var> be <var>browsing context group</var>’s <a data-link-type="dfn" href="#browsing-context-group-integrity-origin" id="ref-for-browsing-context-group-integrity-origin③">integrity origin</a>. 
+     <li> Let <var>integrity verification algorithm</var> be <var>browsing context group</var>’s <a data-link-type="dfn" href="#browsing-context-group-integrity-verification-algorithm" id="ref-for-browsing-context-group-integrity-verification-algorithm③">integrity verification algorithm</a>. 
+     <li> If <var>integrity origin</var> or <var>integrity verification algorithm</var> are <code>null</code>,
+    return "<code>not applicable</code>". 
+     <li> If <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin" id="ref-for-concept-request-origin">origin</a> is not equal to <var>integrity origin</var>,
+    return "<code>not applicable</code>". 
+     <li> If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body">body</a> is <code>null</code>, return "<code>invalid</code>". 
+     <li> If the result of executing <var>integrity verification algorithm</var> given <var>request</var> and <var>response</var> is <code>false</code>, return "<code>invalid</code>". 
+     <li> Return "<code>valid</code>". 
+    </ol>
+   </div>
+   <h4 class="heading settled" data-level="3.3.2" id="fetch-main-fetch"><span class="secno">3.3.2. </span><span class="content">Patches to the "Main Fetch" algorithm</span><a class="self-link" href="#fetch-main-fetch"></a></h4>
+    The <a data-link-type="dfn" href="#monkey-main-fetch" id="ref-for-monkey-main-fetch">main fetch</a> algorithm is extended as follows: 
+   <div class="algorithm" data-algorithm="main fetch">
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="monkey-main-fetch">main fetch</dfn>, given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-params" id="ref-for-fetch-params">fetch params</a> <var>fetchParams</var> and an optional boolean <var>recursive</var> (default false), run these steps: 
+    <ol>
+     <li>Let <var>request</var> be <var>fetchParams</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-params-request" id="ref-for-fetch-params-request②">request</a>.
+     <li>Let <var>response</var> be <code>null</code>.
+     <li value="22">
+       If <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-integrity-metadata" id="ref-for-concept-request-integrity-metadata">integrity metadata</a> is not the empty string, then: 
+      <ol>
+       <li>...
+      </ol>
+     <li>
+      <ins> If the result of executing <a data-link-type="dfn" href="#verify-the-integrity-of-a-response" id="ref-for-verify-the-integrity-of-a-response">verify the integrity of a response</a> given <var>request</var> and <var>response</var> is "<code>invalid</code>", then run <a href="https://fetch.spec.whatwg.org/#fetch-finale">fetch response
+    handover</a> given <var>fetchParams</var> and a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error">network error</a>. </ins>
+     <li> Otherwise, run <a href="https://fetch.spec.whatwg.org/#fetch-finale">fetch
+    response handover</a> given <var>fetchParams</var> and <var>response</var>. 
+    </ol>
+   </div>
+   <p class="note" role="note"><span class="marker">NOTE:</span> Ideally we would integrate integrity verification with <a data-link-type="biblio" href="#biblio-sri" title="Subresource Integrity">[SRI]</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-integrity-metadata" id="ref-for-concept-request-integrity-metadata①">integrity metadata</a> and its supporting algorithms. That would require a
+non-trivial refactoring of how the <a data-link-type="biblio" href="#biblio-sri" title="Subresource Integrity">[SRI]</a> specification handles <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-integrity-metadata" id="ref-for-concept-request-integrity-metadata②">integrity metadata</a> strings, which may be worth pursuing in the future.</p>
+   <h3 class="heading settled" data-level="3.4" id="monkey-webidl"><span class="secno">3.4. </span><span class="content">WebIDL</span><a class="self-link" href="#monkey-webidl"></a></h3>
+   <p>In WebIDL, we’ll define the <code>[IsolatedContext]</code> attribute, and wire it up to
+the hook created in HTML above:</p>
+   <h4 class="heading settled dfn-paneled idl-code" data-dfn-type="extended-attribute" data-export data-level="3.4.1" data-lt="IsolatedContext" id="IsolatedContext"><span class="secno">3.4.1. </span><span class="content"> [IsolatedContext] </span><a class="self-link" href="#IsolatedContext" id="ref-for-IsolatedContext"></a></h4>
+   <p>If the [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext①⓪">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute">extended attribute</a> appears on an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface">interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-interface" id="ref-for-dfn-partial-interface">partial interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin" id="ref-for-interface-mixin">interface mixin</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#partial-interface-mixin" id="ref-for-partial-interface-mixin">partial interface mixin</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-callback-interface" id="ref-for-dfn-callback-interface">callback interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace" id="ref-for-dfn-namespace">namespace</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-namespace" id="ref-for-dfn-partial-namespace">partial namespace</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface-member" id="ref-for-dfn-interface-member">interface member</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin-member" id="ref-for-interface-mixin-member">interface mixin member</a>, or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace-member" id="ref-for-dfn-namespace-member">namespace member</a>,
+it indicates that the construct is <a data-link-type="dfn" href="#dfn-exposed" id="ref-for-dfn-exposed">exposed</a> only within an <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context①">isolated context</a>.
 The [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext①">IsolatedContext</a></code>] extended attribute must not be used
 on any other construct.</p>
+   <p>The [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext②">IsolatedContext</a></code>] extended attribute must <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-xattr-no-arguments" id="ref-for-dfn-xattr-no-arguments">take no arguments</a>.</p>
+   <p>If [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext③">IsolatedContext</a></code>] appears on an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-overloaded" id="ref-for-dfn-overloaded">overloaded</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-operation" id="ref-for-dfn-operation">operation</a>,
+then it must appear on all overloads.</p>
+   <p>The [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext④">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute①">extended attribute</a> must not be specified on more
+than one of the following:</p>
+   <ul>
+    <li data-md>
+     <p>an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface-member" id="ref-for-dfn-interface-member①">interface member</a> and its <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface①">interface</a> or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-interface" id="ref-for-dfn-partial-interface①">partial interface</a>;</p>
+    <li data-md>
+     <p>an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin-member" id="ref-for-interface-mixin-member①">interface mixin member</a> and its <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin" id="ref-for-interface-mixin①">interface mixin</a> or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#partial-interface-mixin" id="ref-for-partial-interface-mixin①">partial interface mixin</a>;</p>
+    <li data-md>
+     <p>a <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace-member" id="ref-for-dfn-namespace-member①">namespace member</a> and its <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace" id="ref-for-dfn-namespace①">namespace</a> or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-namespace" id="ref-for-dfn-partial-namespace①">partial namespace</a>.</p>
+   </ul>
+   <p class="note" role="note"><span class="marker">Note:</span> This is because adding the [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑤">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute②">extended attribute</a> on a <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-member" id="ref-for-dfn-member">member</a> when its containing definition is also annotated with the
+[<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑥">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute③">extended attribute</a> does not further restrict the
+exposure of the <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-member" id="ref-for-dfn-member①">member</a>.</p>
+   <p>An <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface②">interface</a> without the [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑦">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute④">extended attribute</a> must not <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-inherit" id="ref-for-dfn-inherit">inherit</a> from another interface
+that does specify [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑧">IsolatedContext</a></code>].</p>
+   <h4 class="heading settled" data-level="3.4.2" id="monkey-webidl-exposed"><span class="secno">3.4.2. </span><span class="content">Patches to the "exposed" algorithm</span><a class="self-link" href="#monkey-webidl-exposed"></a></h4>
+   <p>WebIDL’s <a data-link-type="dfn" href="#dfn-exposed" id="ref-for-dfn-exposed①">exposed</a> algorithm is adjusted as follows, adding a single step
+after similarly handling [<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#CrossOriginIsolated" id="ref-for-CrossOriginIsolated">CrossOriginIsolated</a></code>] (step 4 below).</p>
+   <div class="algorithm" data-algorithm="exposed">
+     An <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface③">interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-callback-interface" id="ref-for-dfn-callback-interface①">callback interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace" id="ref-for-dfn-namespace②">namespace</a>, or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-member" id="ref-for-dfn-member②">member</a> <var>construct</var> is <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="dfn-exposed">exposed</dfn> in a given <a data-link-type="dfn" href="https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html#realm" id="ref-for-realm">realm</a> <var>realm</var> if the following steps return true: 
+    <ol>
+     <li> If <var>construct</var>’s <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-exposure-set" id="ref-for-dfn-exposure-set">exposure set</a> is not <code>*</code>, and <var>realm</var>.[[GlobalObject]] does not implement an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface④">interface</a> that is in <var>construct</var>’s <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-exposure-set" id="ref-for-dfn-exposure-set①">exposure set</a>, then return false. 
+     <li> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object">settings object</a> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#secure-context" id="ref-for-secure-context①">secure context</a>, and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext">SecureContext</a></code>], then
+      return false. 
+     <li> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object①">settings object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability②">cross-origin isolated capability</a> is false,
+      and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed①">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#CrossOriginIsolated" id="ref-for-CrossOriginIsolated①">CrossOriginIsolated</a></code>],
+      then return false. 
+     <li>
+      <ins> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object②">settings object</a> does not <a data-link-type="dfn" href="#environment-settings-object-enforce-isolation-and-integrity" id="ref-for-environment-settings-object-enforce-isolation-and-integrity">enforce isolation and integrity</a>, and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed②">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑨">IsolatedContext</a></code>], then
+        return <code>false</code>. </ins>
+     <li>Return true.
+    </ol>
+   </div>
+   <h3 class="heading settled" data-level="3.5" id="monkey-storage"><span class="secno">3.5. </span><span class="content">Storage</span><a class="self-link" href="#monkey-storage"></a></h3>
+   <p>The <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#obtain-a-storage-key-for-non-storage-purposes" id="ref-for-obtain-a-storage-key-for-non-storage-purposes">obtain a storage key for non-storage purposes</a> algorithm is extended to
+require double-keying on all storage within a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group⑥">browsing context group</a> containing <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context②">Isolated Contexts</a>.</p>
+   <div class="algorithm" data-algorithm="obtain a storage key for non-storage purposes isolated context">
+     To obtain a storage key for non-storage purposes, given an <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment"> environment</a> <var>environment</var>, run these steps: 
+    <ol>
+     <li> Let <var>origin</var> be <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin③">origin</a> if <var>environment</var> is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object④">environment settings object</a>; otherwise <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url" id="ref-for-concept-environment-creation-url">creation URL</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin④">origin</a>. 
+     <li>
+      <ins> Let <var>integrity origin</var> be the <a data-link-type="dfn" href="#browsing-context-group-integrity-origin" id="ref-for-browsing-context-group-integrity-origin④">integrity origin</a> of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group⑦">browsing context group</a> that <var>environment</var> belongs to. </ins>
+     <li>
+      <ins> If <var>integrity origin</var> is non-null, return a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple">tuple</a> consisting of <var>integrity origin</var> and <var>origin</var>. </ins>
+     <li> Return a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple①">tuple</a> consisting of <var>origin</var>. 
+    </ol>
+   </div>
+   <p class="note" role="note"><span class="marker">Note:</span> This is essentially a minimally-specified version of <a href="https://privacycg.github.io/storage-partitioning/"> Client-Side Storage Partitioning</a>. When that is fully specified and merged
+into the necessary specifications, those changes will supersede this section,
+and it can be removed.</p>
   </main>
   <div data-fill-with="conformance">
    <h2 class="no-ref no-num heading settled" id="w3c-conformance"><span class="content">Conformance</span><a class="self-link" href="#w3c-conformance"></a></h2>
@@ -666,35 +1116,155 @@ on any other construct.</p>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#isolated-context">Isolated context</a><span>, in § Unnumbered section</span>
-   <li><a href="#IsolatedContext">IsolatedContext</a><span>, in § Unnumbered section</span>
+   <li><a href="#environment-settings-object-enforce-isolation-and-integrity">enforce isolation and integrity</a><span>, in § 3.2.2</span>
+   <li><a href="#dfn-exposed">exposed</a><span>, in § 3.4.2</span>
+   <li><a href="#browsing-context-group-integrity-origin">integrity origin</a><span>, in § 3.2.1</span>
+   <li><a href="#browsing-context-group-integrity-verification-algorithm">integrity verification algorithm</a><span>, in § 3.2.1</span>
+   <li><a href="#isolated-context">Isolated context</a><span>, in § 2</span>
+   <li><a href="#IsolatedContext">IsolatedContext</a><span>, in § 3.4</span>
+   <li><a href="#monkey-main-fetch">main fetch</a><span>, in § 3.3.2</span>
+   <li>
+    meaningfully mitigate injection attacks
+    <ul>
+     <li><a href="#csp-list-meaningfully-mitigate-injection-attacks">dfn for CSP list</a><span>, in § 3.1.1</span>
+     <li><a href="#environment-settings-object-meaningfully-mitigate-injection-attacks">dfn for environment settings object</a><span>, in § 3.2.2</span>
+    </ul>
+   <li><a href="#csp-list-meaningfully-mitigate-ui-redressing-attacks">meaningfully mitigate UI Redressing attacks</a><span>, in § 3.1.10</span>
+   <li><a href="#csp-list-meaningfully-mitigate-injection-attacks">mitigate-injection</a><span>, in § 3.1.1</span>
+   <li><a href="#csp-list-meaningfully-mitigate-ui-redressing-attacks">mitigate-ui-redressing</a><span>, in § 3.1.10</span>
+   <li><a href="#environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI Redressing attacks</a><span>, in § 3.2.2</span>
+   <li><a href="#abstract-opdef-obtain-directive">obtain-directive</a><span>, in § 3.1.2</span>
+   <li><a href="#policy-sufficiently-blocks-insecure-subresources">sufficiently blocks insecure subresources</a><span>, in § 3.1.7</span>
+   <li><a href="#policy-sufficiently-mitigates-dom-sinks">sufficiently mitigates DOM sinks</a><span>, in § 3.1.8</span>
+   <li><a href="#policy-sufficiently-mitigates-plugins">sufficiently mitigates plugins</a><span>, in § 3.1.3</span>
+   <li><a href="#policy-sufficiently-mitigates-relative-url-manipulation">sufficiently mitigates relative URL manipulation</a><span>, in § 3.1.4</span>
+   <li><a href="#policy-sufficiently-mitigates-script-execution">sufficiently mitigates script execution</a><span>, in § 3.1.5</span>
+   <li><a href="#policy-sufficiently-mitigates-style-evaluation">sufficiently mitigates style evaluation</a><span>, in § 3.1.6</span>
+   <li><a href="#verify-the-integrity-of-a-response">verify the integrity of a response</a><span>, in § 3.3.1</span>
   </ul>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
    <li>
+    <a data-link-type="biblio">[CSP]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="76a07ab2">Get fetch directive fallback list</span>
+     <li><span class="dfn-paneled" id="78b596f6">csp list</span>
+     <li><span class="dfn-paneled" id="3d7ed2c2">directive set</span>
+     <li><span class="dfn-paneled" id="c80aa797">directives</span>
+     <li><span class="dfn-paneled" id="4582ec82">disposition</span>
+     <li><span class="dfn-paneled" id="51218496">name</span>
+     <li><span class="dfn-paneled" id="de921304">policy</span>
+     <li><span class="dfn-paneled" id="54872557">source</span>
+     <li><span class="dfn-paneled" id="b36452d7">source expression</span>
+     <li><span class="dfn-paneled" id="461b765a">value</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[ECMASCRIPT]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="a5f015e3">realm</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[FETCH]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="81a76425">body</span>
+     <li><span class="dfn-paneled" id="857d5516">client</span>
+     <li><span class="dfn-paneled" id="a33db89a">fetch</span>
+     <li><span class="dfn-paneled" id="97aa4684">fetch params</span>
+     <li><span class="dfn-paneled" id="d79a826f">integrity metadata</span>
+     <li><span class="dfn-paneled" id="eb1b1af3">network error</span>
+     <li><span class="dfn-paneled" id="f78d5b5c">origin</span>
+     <li><span class="dfn-paneled" id="5695c146">request</span>
+     <li><span class="dfn-paneled" id="ee7bba09">response</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[HTML]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="59c8a576">browsing context group</span>
+     <li><span class="dfn-paneled" id="f7f36561">concrete</span>
+     <li><span class="dfn-paneled" id="fa5ee9c5">creation url</span>
+     <li><span class="dfn-paneled" id="473036cd">cross-origin isolated capability</span>
+     <li><span class="dfn-paneled" id="158b3a38">csp list</span>
+     <li><span class="dfn-paneled" id="3e12e042">environment settings object</span>
+     <li><span class="dfn-paneled" id="8a30477b">global object</span>
+     <li><span class="dfn-paneled" id="43ac8374">origin</span>
+     <li><span class="dfn-paneled" id="bd1db03d">policy container</span>
+     <li><span class="dfn-paneled" id="65181da8">secure context</span>
+     <li><span class="dfn-paneled" id="7deb6835">settings object</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="7f9469b5">ascii case-insensitive</span>
+     <li><span class="dfn-paneled" id="36858240">boolean</span>
+     <li><span class="dfn-paneled" id="ae8def21">contain</span>
+     <li><span class="dfn-paneled" id="f937b7b6">continue</span>
+     <li><span class="dfn-paneled" id="16d07e10">for each</span>
+     <li><span class="dfn-paneled" id="0204d188">size</span>
+     <li><span class="dfn-paneled" id="0e8de730">tuple</span>
+     <li><span class="dfn-paneled" id="6d19ac93">user agent</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[STORAGE]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="76919410">obtain a storage key for non-storage purposes</span>
+    </ul>
+   <li>
     <a data-link-type="biblio">[WEBIDL]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="cc2141c1">CrossOriginIsolated</span>
+     <li><span class="dfn-paneled" id="b75bb3bd">SecureContext</span>
      <li><span class="dfn-paneled" id="b197a79c">callback interface</span>
-     <li><span class="dfn-paneled" id="25c36209">exposed</span>
+     <li><span class="dfn-paneled" id="d9659204">conditionally exposed</span>
+     <li><span class="dfn-paneled" id="631ad9e6">exposure set</span>
      <li><span class="dfn-paneled" id="3f252540">extended attribute</span>
+     <li><span class="dfn-paneled" id="eab3771a">inherit</span>
      <li><span class="dfn-paneled" id="1422ec4e">interface</span>
      <li><span class="dfn-paneled" id="1c84257e">interface member</span>
      <li><span class="dfn-paneled" id="d08c79a9">interface mixin</span>
      <li><span class="dfn-paneled" id="d7a206d7">interface mixin member</span>
+     <li><span class="dfn-paneled" id="22e6d952">members</span>
      <li><span class="dfn-paneled" id="2039631f">namespace</span>
      <li><span class="dfn-paneled" id="5be3b9a5">namespace member</span>
+     <li><span class="dfn-paneled" id="bac9095f">operation</span>
+     <li><span class="dfn-paneled" id="c71e04da">overloaded</span>
      <li><span class="dfn-paneled" id="d0eba3fd">partial interface</span>
      <li><span class="dfn-paneled" id="33e1d425">partial interface mixin</span>
      <li><span class="dfn-paneled" id="2f83c241">partial namespace</span>
+     <li><span class="dfn-paneled" id="843fcc5a">takes no arguments</span>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
+   <dt id="biblio-csp">[CSP]
+   <dd>Mike West; Antonio Sartori. <a href="https://w3c.github.io/webappsec-csp/"><cite>Content Security Policy Level 3</cite></a>. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
+   <dt id="biblio-ecmascript">[ECMASCRIPT]
+   <dd><a href="https://tc39.es/ecma262/multipage/"><cite>ECMAScript Language Specification</cite></a>. URL: <a href="https://tc39.es/ecma262/multipage/">https://tc39.es/ecma262/multipage/</a>
+   <dt id="biblio-fetch">[FETCH]
+   <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/"><cite>Fetch Standard</cite></a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
+   <dt id="biblio-html">[HTML]
+   <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-infra">[INFRA]
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/"><cite>Infra Standard</cite></a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
+   <dt id="biblio-storage">[STORAGE]
+   <dd>Anne van Kesteren. <a href="https://storage.spec.whatwg.org/"><cite>Storage Standard</cite></a>. Living Standard. URL: <a href="https://storage.spec.whatwg.org/">https://storage.spec.whatwg.org/</a>
+   <dt id="biblio-trusted-types">[TRUSTED-TYPES]
+   <dd>Krzysztof Kotowicz. <a href="https://w3c.github.io/trusted-types/dist/spec/"><cite>Trusted Types</cite></a>. URL: <a href="https://w3c.github.io/trusted-types/dist/spec/">https://w3c.github.io/trusted-types/dist/spec/</a>
    <dt id="biblio-webidl">[WEBIDL]
    <dd>Edgar Chen; Timothy Gu. <a href="https://webidl.spec.whatwg.org/"><cite>Web IDL Standard</cite></a>. Living Standard. URL: <a href="https://webidl.spec.whatwg.org/">https://webidl.spec.whatwg.org/</a>
+  </dl>
+  <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
+  <dl>
+   <dt id="biblio-securer-contexts">[SECURER-CONTEXTS]
+   <dd>Mike West. <a href="https://github.com/mikewest/securer-contexts"><cite>Securer Contexts</cite></a>. URL: <a href="https://github.com/mikewest/securer-contexts">https://github.com/mikewest/securer-contexts</a>
+   <dt id="biblio-sri">[SRI]
+   <dd>Devdatta Akhawe; et al. <a href="https://w3c.github.io/webappsec-subresource-integrity/"><cite>Subresource Integrity</cite></a>. URL: <a href="https://w3c.github.io/webappsec-subresource-integrity/">https://w3c.github.io/webappsec-subresource-integrity/</a>
+   <dt id="biblio-strict-csp">[STRICT-CSP]
+   <dd>Lukas Weichselbaum. <a href="https://web.dev/strict-csp/"><cite>Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)</cite></a>. 15 March 2021. URL: <a href="https://web.dev/strict-csp/">https://web.dev/strict-csp/</a>
+   <dt id="biblio-uisecurity">[UISECURITY]
+   <dd>Brad Hill. <a href="https://w3c.github.io/webappsec-uisecurity/index.html"><cite>User Interface Security and the Visibility API</cite></a>. URL: <a href="https://w3c.github.io/webappsec-uisecurity/index.html">https://w3c.github.io/webappsec-uisecurity/index.html</a>
   </dl>
 <script>/* Boilerplate: script-dom-helper */
 "use strict";
@@ -896,20 +1466,85 @@ function parseHTML(markup) {
 "use strict";
 {
 let dfnPanelData = {
-"1422ec4e": {"dfnID":"1422ec4e","dfnText":"interface","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-interface"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-interface"},
-"1c84257e": {"dfnID":"1c84257e","dfnText":"interface member","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-interface-member"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-interface-member"},
-"2039631f": {"dfnID":"2039631f","dfnText":"namespace","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-namespace"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-namespace"},
-"25c36209": {"dfnID":"25c36209","dfnText":"exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-exposed"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-exposed"},
-"2f83c241": {"dfnID":"2f83c241","dfnText":"partial namespace","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-partial-namespace"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-partial-namespace"},
-"33e1d425": {"dfnID":"33e1d425","dfnText":"partial interface mixin","external":true,"refSections":[{"refs":[{"id":"ref-for-partial-interface-mixin"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#partial-interface-mixin"},
-"3f252540": {"dfnID":"3f252540","dfnText":"extended attribute","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-extended-attribute"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-extended-attribute"},
-"5be3b9a5": {"dfnID":"5be3b9a5","dfnText":"namespace member","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-namespace-member"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-namespace-member"},
-"IsolatedContext": {"dfnID":"IsolatedContext","dfnText":"1. [IsolatedContext]","external":false,"refSections":[{"refs":[{"id":"ref-for-IsolatedContext"},{"id":"ref-for-IsolatedContext"},{"id":"ref-for-IsolatedContext\u2460"}],"title":"1. [IsolatedContext]"}],"url":"#IsolatedContext"},
-"b197a79c": {"dfnID":"b197a79c","dfnText":"callback interface","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-callback-interface"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-callback-interface"},
-"d08c79a9": {"dfnID":"d08c79a9","dfnText":"interface mixin","external":true,"refSections":[{"refs":[{"id":"ref-for-interface-mixin"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#interface-mixin"},
-"d0eba3fd": {"dfnID":"d0eba3fd","dfnText":"partial interface","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-partial-interface"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#dfn-partial-interface"},
-"d7a206d7": {"dfnID":"d7a206d7","dfnText":"interface mixin member","external":true,"refSections":[{"refs":[{"id":"ref-for-interface-mixin-member"}],"title":"1. [IsolatedContext]"}],"url":"https://webidl.spec.whatwg.org/#interface-mixin-member"},
-"isolated-context": {"dfnID":"isolated-context","dfnText":"Isolated context","external":false,"refSections":[{"refs":[{"id":"ref-for-isolated-context"}],"title":"1. [IsolatedContext]"}],"url":"#isolated-context"},
+"0204d188": {"dfnID":"0204d188","dfnText":"size","external":true,"refSections":[{"refs":[{"id":"ref-for-list-size"}],"title":"3.1.3. Does a policy sufficiently mitigate plugins?"},{"refs":[{"id":"ref-for-list-size\u2460"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-list-size\u2461"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://infra.spec.whatwg.org/#list-size"},
+"0e8de730": {"dfnID":"0e8de730","dfnText":"tuple","external":true,"refSections":[{"refs":[{"id":"ref-for-tuple"},{"id":"ref-for-tuple\u2460"}],"title":"3.5. Storage"}],"url":"https://infra.spec.whatwg.org/#tuple"},
+"1422ec4e": {"dfnID":"1422ec4e","dfnText":"interface","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-interface"},{"id":"ref-for-dfn-interface\u2460"},{"id":"ref-for-dfn-interface\u2461"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-dfn-interface\u2462"},{"id":"ref-for-dfn-interface\u2463"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#dfn-interface"},
+"158b3a38": {"dfnID":"158b3a38","dfnText":"csp list","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-container-csp-list"},{"id":"ref-for-policy-container-csp-list\u2460"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list"},
+"16d07e10": {"dfnID":"16d07e10","dfnText":"for each","external":true,"refSections":[{"refs":[{"id":"ref-for-list-iterate"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-list-iterate\u2460"}],"title":"3.1.2. Obtain the active directive for a type"},{"refs":[{"id":"ref-for-list-iterate\u2461"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-list-iterate\u2462"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-list-iterate\u2463"}],"title":"3.1.7. Does a policy sufficiently block insecure subresources?"},{"refs":[{"id":"ref-for-list-iterate\u2464"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"},{"refs":[{"id":"ref-for-list-iterate\u2465"},{"id":"ref-for-list-iterate\u2466"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://infra.spec.whatwg.org/#list-iterate"},
+"1c84257e": {"dfnID":"1c84257e","dfnText":"interface member","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-interface-member"},{"id":"ref-for-dfn-interface-member\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-interface-member"},
+"2039631f": {"dfnID":"2039631f","dfnText":"namespace","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-namespace"},{"id":"ref-for-dfn-namespace\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-dfn-namespace\u2461"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#dfn-namespace"},
+"22e6d952": {"dfnID":"22e6d952","dfnText":"members","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-member"},{"id":"ref-for-dfn-member\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-dfn-member\u2461"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#dfn-member"},
+"2f83c241": {"dfnID":"2f83c241","dfnText":"partial namespace","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-partial-namespace"},{"id":"ref-for-dfn-partial-namespace\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-partial-namespace"},
+"33e1d425": {"dfnID":"33e1d425","dfnText":"partial interface mixin","external":true,"refSections":[{"refs":[{"id":"ref-for-partial-interface-mixin"},{"id":"ref-for-partial-interface-mixin\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#partial-interface-mixin"},
+"36858240": {"dfnID":"36858240","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-boolean"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-boolean\u2460"}],"title":"3.2.1. Integrity"}],"url":"https://infra.spec.whatwg.org/#boolean"},
+"3d7ed2c2": {"dfnID":"3d7ed2c2","dfnText":"directive set","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-directive-set"}],"title":"3.1.2. Obtain the active directive for a type"},{"refs":[{"id":"ref-for-policy-directive-set\u2460"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-policy-directive-set\u2461"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-policy-directive-set\u2462"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"},{"refs":[{"id":"ref-for-policy-directive-set\u2463"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://w3c.github.io/webappsec-csp/#policy-directive-set"},
+"3e12e042": {"dfnID":"3e12e042","dfnText":"environment settings object","external":true,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object"}],"title":"3.2. HTML"},{"refs":[{"id":"ref-for-environment-settings-object\u2460"},{"id":"ref-for-environment-settings-object\u2461"},{"id":"ref-for-environment-settings-object\u2462"}],"title":"3.2.2. Environment Settings Object properties"},{"refs":[{"id":"ref-for-environment-settings-object\u2463"}],"title":"3.5. Storage"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"},
+"3f252540": {"dfnID":"3f252540","dfnText":"extended attribute","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-extended-attribute"},{"id":"ref-for-dfn-extended-attribute\u2460"},{"id":"ref-for-dfn-extended-attribute\u2461"},{"id":"ref-for-dfn-extended-attribute\u2462"},{"id":"ref-for-dfn-extended-attribute\u2463"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-extended-attribute"},
+"43ac8374": {"dfnID":"43ac8374","dfnText":"origin","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-settings-object-origin"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-concept-settings-object-origin\u2460"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-concept-settings-object-origin\u2461"}],"title":"3.2.2. Environment Settings Object properties"},{"refs":[{"id":"ref-for-concept-settings-object-origin\u2462"},{"id":"ref-for-concept-settings-object-origin\u2463"}],"title":"3.5. Storage"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin"},
+"4582ec82": {"dfnID":"4582ec82","dfnText":"disposition","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-disposition"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-policy-disposition\u2460"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://w3c.github.io/webappsec-csp/#policy-disposition"},
+"461b765a": {"dfnID":"461b765a","dfnText":"value","external":true,"refSections":[{"refs":[{"id":"ref-for-directive-value"},{"id":"ref-for-directive-value\u2460"}],"title":"3.1.3. Does a policy sufficiently mitigate plugins?"},{"refs":[{"id":"ref-for-directive-value\u2461"},{"id":"ref-for-directive-value\u2462"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-directive-value\u2463"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"},{"refs":[{"id":"ref-for-directive-value\u2464"},{"id":"ref-for-directive-value\u2465"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://w3c.github.io/webappsec-csp/#directive-value"},
+"473036cd": {"dfnID":"473036cd","dfnText":"cross-origin isolated capability","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-settings-object-cross-origin-isolated-capability"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-concept-settings-object-cross-origin-isolated-capability\u2460"}],"title":"3.2.2. Environment Settings Object properties"},{"refs":[{"id":"ref-for-concept-settings-object-cross-origin-isolated-capability\u2461"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability"},
+"51218496": {"dfnID":"51218496","dfnText":"name","external":true,"refSections":[{"refs":[{"id":"ref-for-directive-name"}],"title":"3.1.2. Obtain the active directive for a type"},{"refs":[{"id":"ref-for-directive-name\u2460"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-directive-name\u2461"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-directive-name\u2462"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"},{"refs":[{"id":"ref-for-directive-name\u2463"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://w3c.github.io/webappsec-csp/#directive-name"},
+"54872557": {"dfnID":"54872557","dfnText":"source","external":true,"refSections":[{"refs":[{"id":"ref-for-policy-source"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-policy-source\u2460"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://w3c.github.io/webappsec-csp/#policy-source"},
+"5695c146": {"dfnID":"5695c146","dfnText":"request","external":true,"refSections":[{"refs":[{"id":"ref-for-fetch-params-request"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-fetch-params-request\u2460"}],"title":"3.3.1. Verify the integrity of a response"},{"refs":[{"id":"ref-for-fetch-params-request\u2461"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"https://fetch.spec.whatwg.org/#fetch-params-request"},
+"59c8a576": {"dfnID":"59c8a576","dfnText":"browsing context group","external":true,"refSections":[{"refs":[{"id":"ref-for-browsing-context-group"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-browsing-context-group\u2460"},{"id":"ref-for-browsing-context-group\u2461"},{"id":"ref-for-browsing-context-group\u2462"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-browsing-context-group\u2463"}],"title":"3.2.2. Environment Settings Object properties"},{"refs":[{"id":"ref-for-browsing-context-group\u2464"}],"title":"3.3.1. Verify the integrity of a response"},{"refs":[{"id":"ref-for-browsing-context-group\u2465"},{"id":"ref-for-browsing-context-group\u2466"}],"title":"3.5. Storage"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group"},
+"5be3b9a5": {"dfnID":"5be3b9a5","dfnText":"namespace member","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-namespace-member"},{"id":"ref-for-dfn-namespace-member\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-namespace-member"},
+"631ad9e6": {"dfnID":"631ad9e6","dfnText":"exposure set","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-exposure-set"},{"id":"ref-for-dfn-exposure-set\u2460"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#dfn-exposure-set"},
+"65181da8": {"dfnID":"65181da8","dfnText":"secure context","external":true,"refSections":[{"refs":[{"id":"ref-for-secure-context"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-secure-context\u2460"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#secure-context"},
+"6d19ac93": {"dfnID":"6d19ac93","dfnText":"user agent","external":true,"refSections":[{"refs":[{"id":"ref-for-user-agent"}],"title":"3.2.1. Integrity"}],"url":"https://infra.spec.whatwg.org/#user-agent"},
+"76919410": {"dfnID":"76919410","dfnText":"obtain a storage key for non-storage purposes","external":true,"refSections":[{"refs":[{"id":"ref-for-obtain-a-storage-key-for-non-storage-purposes"}],"title":"3.5. Storage"}],"url":"https://storage.spec.whatwg.org/#obtain-a-storage-key-for-non-storage-purposes"},
+"76a07ab2": {"dfnID":"76a07ab2","dfnText":"Get fetch directive fallback list","external":true,"refSections":[{"refs":[{"id":"ref-for-directive-fallback-list"}],"title":"3.1.2. Obtain the active directive for a type"}],"url":"https://w3c.github.io/webappsec-csp/#directive-fallback-list"},
+"78b596f6": {"dfnID":"78b596f6","dfnText":"csp list","external":true,"refSections":[{"refs":[{"id":"ref-for-csp-list"}],"title":"3.1. Content Security Policy"},{"refs":[{"id":"ref-for-csp-list\u2460"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-csp-list\u2461"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://w3c.github.io/webappsec-csp/#csp-list"},
+"7deb6835": {"dfnID":"7deb6835","dfnText":"settings object","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-realm-settings-object"},{"id":"ref-for-concept-realm-settings-object\u2460"},{"id":"ref-for-concept-realm-settings-object\u2461"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object"},
+"7f9469b5": {"dfnID":"7f9469b5","dfnText":"ascii case-insensitive","external":true,"refSections":[{"refs":[{"id":"ref-for-ascii-case-insensitive"}],"title":"3.1.3. Does a policy sufficiently mitigate plugins?"},{"refs":[{"id":"ref-for-ascii-case-insensitive\u2460"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-ascii-case-insensitive\u2461"}],"title":"3.1.5. Does a policy sufficiently mitigate script execution?"},{"refs":[{"id":"ref-for-ascii-case-insensitive\u2462"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-ascii-case-insensitive\u2463"}],"title":"3.1.7. Does a policy sufficiently block insecure subresources?"},{"refs":[{"id":"ref-for-ascii-case-insensitive\u2464"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"},{"refs":[{"id":"ref-for-ascii-case-insensitive\u2465"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://infra.spec.whatwg.org/#ascii-case-insensitive"},
+"81a76425": {"dfnID":"81a76425","dfnText":"body","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response-body"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"https://fetch.spec.whatwg.org/#concept-response-body"},
+"843fcc5a": {"dfnID":"843fcc5a","dfnText":"takes no arguments","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-xattr-no-arguments"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-xattr-no-arguments"},
+"857d5516": {"dfnID":"857d5516","dfnText":"client","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-request-client"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"https://fetch.spec.whatwg.org/#concept-request-client"},
+"8a30477b": {"dfnID":"8a30477b","dfnText":"global object","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-settings-object-global"}],"title":"3.2. HTML"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global"},
+"97aa4684": {"dfnID":"97aa4684","dfnText":"fetch params","external":true,"refSections":[{"refs":[{"id":"ref-for-fetch-params"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"https://fetch.spec.whatwg.org/#fetch-params"},
+"IsolatedContext": {"dfnID":"IsolatedContext","dfnText":"3.4.1. \n  [IsolatedContext]\n","external":false,"refSections":[{"refs":[{"id":"ref-for-IsolatedContext"},{"id":"ref-for-IsolatedContext"},{"id":"ref-for-IsolatedContext\u2460"},{"id":"ref-for-IsolatedContext\u2461"},{"id":"ref-for-IsolatedContext\u2462"},{"id":"ref-for-IsolatedContext\u2463"},{"id":"ref-for-IsolatedContext\u2464"},{"id":"ref-for-IsolatedContext\u2465"},{"id":"ref-for-IsolatedContext\u2466"},{"id":"ref-for-IsolatedContext\u2467"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-IsolatedContext\u2468"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"#IsolatedContext"},
+"a33db89a": {"dfnID":"a33db89a","dfnText":"fetch","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-fetch"}],"title":"2. Isolated Contexts"}],"url":"https://fetch.spec.whatwg.org/#concept-fetch"},
+"a5f015e3": {"dfnID":"a5f015e3","dfnText":"realm","external":true,"refSections":[{"refs":[{"id":"ref-for-realm"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html#realm"},
+"abstract-opdef-obtain-directive": {"dfnID":"abstract-opdef-obtain-directive","dfnText":"obtain\nthe active directive","external":false,"refSections":[{"refs":[{"id":"ref-for-abstract-opdef-obtain-directive"}],"title":"3.1.3. Does a policy sufficiently mitigate plugins?"},{"refs":[{"id":"ref-for-abstract-opdef-obtain-directive\u2460"}],"title":"3.1.5. Does a policy sufficiently mitigate script execution?"},{"refs":[{"id":"ref-for-abstract-opdef-obtain-directive\u2461"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-abstract-opdef-obtain-directive\u2462"}],"title":"3.1.7. Does a policy sufficiently block insecure subresources?"}],"url":"#abstract-opdef-obtain-directive"},
+"ae8def21": {"dfnID":"ae8def21","dfnText":"contain","external":true,"refSections":[{"refs":[{"id":"ref-for-list-contain"}],"title":"3.1.2. Obtain the active directive for a type"},{"refs":[{"id":"ref-for-list-contain\u2460"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"}],"url":"https://infra.spec.whatwg.org/#list-contain"},
+"b197a79c": {"dfnID":"b197a79c","dfnText":"callback interface","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-callback-interface"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-dfn-callback-interface\u2460"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#dfn-callback-interface"},
+"b36452d7": {"dfnID":"b36452d7","dfnText":"source expression","external":true,"refSections":[{"refs":[{"id":"ref-for-source-expression"}],"title":"3.1.5. Does a policy sufficiently mitigate script execution?"},{"refs":[{"id":"ref-for-source-expression\u2460"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-source-expression\u2461"}],"title":"3.1.7. Does a policy sufficiently block insecure subresources?"}],"url":"https://w3c.github.io/webappsec-csp/#source-expression"},
+"b75bb3bd": {"dfnID":"b75bb3bd","dfnText":"SecureContext","external":true,"refSections":[{"refs":[{"id":"ref-for-SecureContext"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#SecureContext"},
+"bac9095f": {"dfnID":"bac9095f","dfnText":"operation","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-operation"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-operation"},
+"bd1db03d": {"dfnID":"bd1db03d","dfnText":"policy container","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-settings-object-policy-container"},{"id":"ref-for-concept-settings-object-policy-container\u2460"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container"},
+"browsing-context-group-integrity-origin": {"dfnID":"browsing-context-group-integrity-origin","dfnText":"\nintegrity origin","external":false,"refSections":[{"refs":[{"id":"ref-for-browsing-context-group-integrity-origin"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-browsing-context-group-integrity-origin\u2460"},{"id":"ref-for-browsing-context-group-integrity-origin\u2461"}],"title":"3.2.2. Environment Settings Object properties"},{"refs":[{"id":"ref-for-browsing-context-group-integrity-origin\u2462"}],"title":"3.3.1. Verify the integrity of a response"},{"refs":[{"id":"ref-for-browsing-context-group-integrity-origin\u2463"}],"title":"3.5. Storage"}],"url":"#browsing-context-group-integrity-origin"},
+"browsing-context-group-integrity-verification-algorithm": {"dfnID":"browsing-context-group-integrity-verification-algorithm","dfnText":"\nintegrity verification algorithm","external":false,"refSections":[{"refs":[{"id":"ref-for-browsing-context-group-integrity-verification-algorithm"},{"id":"ref-for-browsing-context-group-integrity-verification-algorithm\u2460"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-browsing-context-group-integrity-verification-algorithm\u2461"}],"title":"3.3. Fetch"},{"refs":[{"id":"ref-for-browsing-context-group-integrity-verification-algorithm\u2462"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"#browsing-context-group-integrity-verification-algorithm"},
+"c71e04da": {"dfnID":"c71e04da","dfnText":"overloaded","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-overloaded"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-overloaded"},
+"c80aa797": {"dfnID":"c80aa797","dfnText":"directives","external":true,"refSections":[{"refs":[{"id":"ref-for-directives"}],"title":"3.1.2. Obtain the active directive for a type"}],"url":"https://w3c.github.io/webappsec-csp/#directives"},
+"cc2141c1": {"dfnID":"cc2141c1","dfnText":"CrossOriginIsolated","external":true,"refSections":[{"refs":[{"id":"ref-for-CrossOriginIsolated"},{"id":"ref-for-CrossOriginIsolated\u2460"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#CrossOriginIsolated"},
+"csp-list-meaningfully-mitigate-injection-attacks": {"dfnID":"csp-list-meaningfully-mitigate-injection-attacks","dfnText":"meaningfully\nmitigate injection attacks","external":false,"refSections":[{"refs":[{"id":"ref-for-csp-list-meaningfully-mitigate-injection-attacks"}],"title":"3.1.9. Example"},{"refs":[{"id":"ref-for-csp-list-meaningfully-mitigate-injection-attacks\u2460"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"#csp-list-meaningfully-mitigate-injection-attacks"},
+"csp-list-meaningfully-mitigate-ui-redressing-attacks": {"dfnID":"csp-list-meaningfully-mitigate-ui-redressing-attacks","dfnText":"meaningfully\nmitigate UI Redressing attacks","external":false,"refSections":[{"refs":[{"id":"ref-for-csp-list-meaningfully-mitigate-ui-redressing-attacks"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"#csp-list-meaningfully-mitigate-ui-redressing-attacks"},
+"d08c79a9": {"dfnID":"d08c79a9","dfnText":"interface mixin","external":true,"refSections":[{"refs":[{"id":"ref-for-interface-mixin"},{"id":"ref-for-interface-mixin\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#interface-mixin"},
+"d0eba3fd": {"dfnID":"d0eba3fd","dfnText":"partial interface","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-partial-interface"},{"id":"ref-for-dfn-partial-interface\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-partial-interface"},
+"d79a826f": {"dfnID":"d79a826f","dfnText":"integrity metadata","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-request-integrity-metadata"},{"id":"ref-for-concept-request-integrity-metadata\u2460"},{"id":"ref-for-concept-request-integrity-metadata\u2461"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"https://fetch.spec.whatwg.org/#concept-request-integrity-metadata"},
+"d7a206d7": {"dfnID":"d7a206d7","dfnText":"interface mixin member","external":true,"refSections":[{"refs":[{"id":"ref-for-interface-mixin-member"},{"id":"ref-for-interface-mixin-member\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#interface-mixin-member"},
+"d9659204": {"dfnID":"d9659204","dfnText":"conditionally exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-conditionally-exposed"},{"id":"ref-for-dfn-conditionally-exposed\u2460"},{"id":"ref-for-dfn-conditionally-exposed\u2461"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"https://webidl.spec.whatwg.org/#dfn-conditionally-exposed"},
+"de921304": {"dfnID":"de921304","dfnText":"policy","external":true,"refSections":[{"refs":[{"id":"ref-for-violation-policy"}],"title":"3.1.2. Obtain the active directive for a type"},{"refs":[{"id":"ref-for-violation-policy\u2460"}],"title":"3.1.3. Does a policy sufficiently mitigate plugins?"},{"refs":[{"id":"ref-for-violation-policy\u2461"}],"title":"3.1.4. Does a policy sufficiently mitigate relative URL manipulation?"},{"refs":[{"id":"ref-for-violation-policy\u2462"}],"title":"3.1.5. Does a policy sufficiently mitigate script execution?"},{"refs":[{"id":"ref-for-violation-policy\u2463"}],"title":"3.1.6. Does a policy sufficiently mitigate style evaluation?"},{"refs":[{"id":"ref-for-violation-policy\u2464"}],"title":"3.1.7. Does a policy sufficiently block insecure subresources?"},{"refs":[{"id":"ref-for-violation-policy\u2465"}],"title":"3.1.8. Does a policy sufficiently mitigate DOM sinks?"}],"url":"https://w3c.github.io/webappsec-csp/#violation-policy"},
+"dfn-exposed": {"dfnID":"dfn-exposed","dfnText":"exposed","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-exposed"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-dfn-exposed\u2460"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"#dfn-exposed"},
+"eab3771a": {"dfnID":"eab3771a","dfnText":"inherit","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-inherit"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-inherit"},
+"eb1b1af3": {"dfnID":"eb1b1af3","dfnText":"network error","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-network-error"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"https://fetch.spec.whatwg.org/#concept-network-error"},
+"ee7bba09": {"dfnID":"ee7bba09","dfnText":"response","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-concept-response\u2460"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"https://fetch.spec.whatwg.org/#concept-response"},
+"environment-settings-object-enforce-isolation-and-integrity": {"dfnID":"environment-settings-object-enforce-isolation-and-integrity","dfnText":"\nenforce isolation and integrity","external":false,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object-enforce-isolation-and-integrity"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"#environment-settings-object-enforce-isolation-and-integrity"},
+"environment-settings-object-meaningfully-mitigate-injection-attacks": {"dfnID":"environment-settings-object-meaningfully-mitigate-injection-attacks","dfnText":"meaningfully mitigate injection\nattacks","external":false,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object-meaningfully-mitigate-injection-attacks"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"#environment-settings-object-meaningfully-mitigate-injection-attacks"},
+"environment-settings-object-mitigate-ui-redressing-attacks": {"dfnID":"environment-settings-object-mitigate-ui-redressing-attacks","dfnText":"mitigate UI Redressing attacks\n","external":false,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object-mitigate-ui-redressing-attacks"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"#environment-settings-object-mitigate-ui-redressing-attacks"},
+"f78d5b5c": {"dfnID":"f78d5b5c","dfnText":"origin","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-request-origin"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"https://fetch.spec.whatwg.org/#concept-request-origin"},
+"f7f36561": {"dfnID":"f7f36561","dfnText":"concrete","external":true,"refSections":[{"refs":[{"id":"ref-for-cross-origin-isolation-concrete"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#cross-origin-isolation-concrete"},
+"f937b7b6": {"dfnID":"f937b7b6","dfnText":"continue","external":true,"refSections":[{"refs":[{"id":"ref-for-iteration-continue"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-iteration-continue\u2460"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://infra.spec.whatwg.org/#iteration-continue"},
+"fa5ee9c5": {"dfnID":"fa5ee9c5","dfnText":"creation url","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-environment-creation-url"}],"title":"3.5. Storage"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url"},
+"isolated-context": {"dfnID":"isolated-context","dfnText":"Isolated context","external":false,"refSections":[{"refs":[{"id":"ref-for-isolated-context"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-isolated-context\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-isolated-context\u2461"}],"title":"3.5. Storage"}],"url":"#isolated-context"},
+"monkey-main-fetch": {"dfnID":"monkey-main-fetch","dfnText":"main fetch","external":false,"refSections":[{"refs":[{"id":"ref-for-monkey-main-fetch"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"#monkey-main-fetch"},
+"policy-sufficiently-blocks-insecure-subresources": {"dfnID":"policy-sufficiently-blocks-insecure-subresources","dfnText":"sufficiently blocks insecure\nsubresources","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-blocks-insecure-subresources"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-blocks-insecure-subresources"},
+"policy-sufficiently-mitigates-dom-sinks": {"dfnID":"policy-sufficiently-mitigates-dom-sinks","dfnText":"sufficiently mitigates DOM sinks","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-mitigates-dom-sinks"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-mitigates-dom-sinks"},
+"policy-sufficiently-mitigates-plugins": {"dfnID":"policy-sufficiently-mitigates-plugins","dfnText":"sufficiently mitigates plugins","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-mitigates-plugins"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-mitigates-plugins"},
+"policy-sufficiently-mitigates-relative-url-manipulation": {"dfnID":"policy-sufficiently-mitigates-relative-url-manipulation","dfnText":"sufficiently mitigates relative URL\nmanipulation","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-mitigates-relative-url-manipulation"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-mitigates-relative-url-manipulation"},
+"policy-sufficiently-mitigates-script-execution": {"dfnID":"policy-sufficiently-mitigates-script-execution","dfnText":"sufficiently mitigates script execution","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-mitigates-script-execution"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-mitigates-script-execution"},
+"policy-sufficiently-mitigates-style-evaluation": {"dfnID":"policy-sufficiently-mitigates-style-evaluation","dfnText":"sufficiently mitigates style evaluation","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-mitigates-style-evaluation"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-mitigates-style-evaluation"},
+"verify-the-integrity-of-a-response": {"dfnID":"verify-the-integrity-of-a-response","dfnText":"verify the integrity of a response","external":false,"refSections":[{"refs":[{"id":"ref-for-verify-the-integrity-of-a-response"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"#verify-the-integrity-of-a-response"},
 };
 
 document.addEventListener("DOMContentLoaded", ()=>{
@@ -1299,16 +1934,81 @@ function genLinkingSyntaxes(dfn) {
 {
 let refsData = {
 "#IsolatedContext": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"IsolatedContext","type":"extended-attribute","url":"#IsolatedContext"},
+"#abstract-opdef-obtain-directive": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"obtain-directive","type":"abstract-op","url":"#abstract-opdef-obtain-directive"},
+"#browsing-context-group-integrity-origin": {"export":true,"for_":["browsing context group"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"integrity origin","type":"dfn","url":"#browsing-context-group-integrity-origin"},
+"#browsing-context-group-integrity-verification-algorithm": {"export":true,"for_":["browsing context group"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"integrity verification algorithm","type":"dfn","url":"#browsing-context-group-integrity-verification-algorithm"},
+"#csp-list-meaningfully-mitigate-injection-attacks": {"export":true,"for_":["CSP list"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"mitigate-injection","type":"dfn","url":"#csp-list-meaningfully-mitigate-injection-attacks"},
+"#csp-list-meaningfully-mitigate-ui-redressing-attacks": {"export":true,"for_":["CSP list"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"mitigate-ui-redressing","type":"dfn","url":"#csp-list-meaningfully-mitigate-ui-redressing-attacks"},
+"#dfn-exposed": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"exposed","type":"dfn","url":"#dfn-exposed"},
+"#environment-settings-object-enforce-isolation-and-integrity": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"enforce isolation and integrity","type":"dfn","url":"#environment-settings-object-enforce-isolation-and-integrity"},
+"#environment-settings-object-meaningfully-mitigate-injection-attacks": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"meaningfully mitigate injection attacks","type":"dfn","url":"#environment-settings-object-meaningfully-mitigate-injection-attacks"},
+"#environment-settings-object-mitigate-ui-redressing-attacks": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"mitigate ui redressing attacks","type":"dfn","url":"#environment-settings-object-mitigate-ui-redressing-attacks"},
 "#isolated-context": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"isolated context","type":"dfn","url":"#isolated-context"},
+"#monkey-main-fetch": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"main fetch","type":"dfn","url":"#monkey-main-fetch"},
+"#policy-sufficiently-blocks-insecure-subresources": {"export":true,"for_":["policy"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"sufficiently blocks insecure subresources","type":"dfn","url":"#policy-sufficiently-blocks-insecure-subresources"},
+"#policy-sufficiently-mitigates-dom-sinks": {"export":true,"for_":["policy"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"sufficiently mitigates dom sinks","type":"dfn","url":"#policy-sufficiently-mitigates-dom-sinks"},
+"#policy-sufficiently-mitigates-plugins": {"export":true,"for_":["policy"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"sufficiently mitigates plugins","type":"dfn","url":"#policy-sufficiently-mitigates-plugins"},
+"#policy-sufficiently-mitigates-relative-url-manipulation": {"export":true,"for_":["policy"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"sufficiently mitigates relative url manipulation","type":"dfn","url":"#policy-sufficiently-mitigates-relative-url-manipulation"},
+"#policy-sufficiently-mitigates-script-execution": {"export":true,"for_":["policy"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"sufficiently mitigates script execution","type":"dfn","url":"#policy-sufficiently-mitigates-script-execution"},
+"#policy-sufficiently-mitigates-style-evaluation": {"export":true,"for_":["policy"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"sufficiently mitigates style evaluation","type":"dfn","url":"#policy-sufficiently-mitigates-style-evaluation"},
+"#verify-the-integrity-of-a-response": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"verify the integrity of a response","type":"dfn","url":"#verify-the-integrity-of-a-response"},
+"https://fetch.spec.whatwg.org/#concept-fetch": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"fetch","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-fetch"},
+"https://fetch.spec.whatwg.org/#concept-network-error": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"network error","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-network-error"},
+"https://fetch.spec.whatwg.org/#concept-request-client": {"export":true,"for_":["request"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"client","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-request-client"},
+"https://fetch.spec.whatwg.org/#concept-request-integrity-metadata": {"export":true,"for_":["request"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"integrity metadata","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-request-integrity-metadata"},
+"https://fetch.spec.whatwg.org/#concept-request-origin": {"export":true,"for_":["request"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"origin","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-request-origin"},
+"https://fetch.spec.whatwg.org/#concept-response": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"response","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-response"},
+"https://fetch.spec.whatwg.org/#concept-response-body": {"export":true,"for_":["response"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"body","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-response-body"},
+"https://fetch.spec.whatwg.org/#fetch-params": {"export":false,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"fetch params","type":"dfn","url":"https://fetch.spec.whatwg.org/#fetch-params"},
+"https://fetch.spec.whatwg.org/#fetch-params-request": {"export":false,"for_":["fetch params"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"request","type":"dfn","url":"https://fetch.spec.whatwg.org/#fetch-params-request"},
+"https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list": {"export":true,"for_":["policy container"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"csp list","type":"dfn","url":"https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list"},
+"https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group": {"export":false,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"browsing context group","type":"dfn","url":"https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group"},
+"https://html.spec.whatwg.org/multipage/document-sequences.html#cross-origin-isolation-concrete": {"export":false,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"concrete","type":"dfn","url":"https://html.spec.whatwg.org/multipage/document-sequences.html#cross-origin-isolation-concrete"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url": {"export":true,"for_":["environment"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"creation url","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object": {"export":true,"for_":["realm"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"settings object","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"cross-origin isolated capability","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"global object","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"origin","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"policy container","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"environment settings object","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"},
+"https://html.spec.whatwg.org/multipage/webappapis.html#secure-context": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"secure context","type":"dfn","url":"https://html.spec.whatwg.org/multipage/webappapis.html#secure-context"},
+"https://infra.spec.whatwg.org/#ascii-case-insensitive": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"ascii case-insensitive","type":"dfn","url":"https://infra.spec.whatwg.org/#ascii-case-insensitive"},
+"https://infra.spec.whatwg.org/#boolean": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"boolean","type":"dfn","url":"https://infra.spec.whatwg.org/#boolean"},
+"https://infra.spec.whatwg.org/#iteration-continue": {"export":true,"for_":["iteration"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"continue","type":"dfn","url":"https://infra.spec.whatwg.org/#iteration-continue"},
+"https://infra.spec.whatwg.org/#list-contain": {"export":true,"for_":["list","stack","queue","set"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"contain","type":"dfn","url":"https://infra.spec.whatwg.org/#list-contain"},
+"https://infra.spec.whatwg.org/#list-iterate": {"export":true,"for_":["list","set"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"for each","type":"dfn","url":"https://infra.spec.whatwg.org/#list-iterate"},
+"https://infra.spec.whatwg.org/#list-size": {"export":true,"for_":["list","stack","queue","set"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"size","type":"dfn","url":"https://infra.spec.whatwg.org/#list-size"},
+"https://infra.spec.whatwg.org/#tuple": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"tuple","type":"dfn","url":"https://infra.spec.whatwg.org/#tuple"},
+"https://infra.spec.whatwg.org/#user-agent": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"user agent","type":"dfn","url":"https://infra.spec.whatwg.org/#user-agent"},
+"https://storage.spec.whatwg.org/#obtain-a-storage-key-for-non-storage-purposes": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"storage","spec":"storage","status":"current","text":"obtain a storage key for non-storage purposes","type":"dfn","url":"https://storage.spec.whatwg.org/#obtain-a-storage-key-for-non-storage-purposes"},
+"https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html#realm": {"export":true,"for_":["ECMAScript"],"level":"1","normative":true,"shortname":"ecmascript","spec":"ecmascript","status":"current","text":"realm","type":"dfn","url":"https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html#realm"},
+"https://w3c.github.io/webappsec-csp/#csp-list": {"export":true,"for_":[],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"csp list","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#csp-list"},
+"https://w3c.github.io/webappsec-csp/#directive-fallback-list": {"export":true,"for_":[],"level":"","normative":true,"shortname":"csp3","spec":"csp3","status":"anchor-block","text":"Get fetch directive fallback list","type":"abstract-op","url":"https://w3c.github.io/webappsec-csp/#directive-fallback-list"},
+"https://w3c.github.io/webappsec-csp/#directive-name": {"export":true,"for_":["directive"],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"name","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#directive-name"},
+"https://w3c.github.io/webappsec-csp/#directive-value": {"export":true,"for_":["directive"],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"value","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#directive-value"},
+"https://w3c.github.io/webappsec-csp/#directives": {"export":true,"for_":[],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"directives","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#directives"},
+"https://w3c.github.io/webappsec-csp/#policy-directive-set": {"export":true,"for_":["policy"],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"directive set","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#policy-directive-set"},
+"https://w3c.github.io/webappsec-csp/#policy-disposition": {"export":true,"for_":["policy"],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"disposition","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#policy-disposition"},
+"https://w3c.github.io/webappsec-csp/#policy-source": {"export":true,"for_":["policy"],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"source","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#policy-source"},
+"https://w3c.github.io/webappsec-csp/#source-expression": {"export":true,"for_":[],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"source expression","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#source-expression"},
+"https://w3c.github.io/webappsec-csp/#violation-policy": {"export":true,"for_":["violation"],"level":"3","normative":true,"shortname":"csp","spec":"csp3","status":"current","text":"policy","type":"dfn","url":"https://w3c.github.io/webappsec-csp/#violation-policy"},
+"https://webidl.spec.whatwg.org/#CrossOriginIsolated": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"CrossOriginIsolated","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#CrossOriginIsolated"},
+"https://webidl.spec.whatwg.org/#SecureContext": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"SecureContext","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#SecureContext"},
 "https://webidl.spec.whatwg.org/#dfn-callback-interface": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"callback interface","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-callback-interface"},
-"https://webidl.spec.whatwg.org/#dfn-exposed": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"exposed","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-exposed"},
+"https://webidl.spec.whatwg.org/#dfn-conditionally-exposed": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"conditionally exposed","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-conditionally-exposed"},
+"https://webidl.spec.whatwg.org/#dfn-exposure-set": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"exposure set","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-exposure-set"},
 "https://webidl.spec.whatwg.org/#dfn-extended-attribute": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"extended attribute","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-extended-attribute"},
+"https://webidl.spec.whatwg.org/#dfn-inherit": {"export":true,"for_":["interface"],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"inherit","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-inherit"},
 "https://webidl.spec.whatwg.org/#dfn-interface": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"interface","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-interface"},
 "https://webidl.spec.whatwg.org/#dfn-interface-member": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"interface member","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-interface-member"},
+"https://webidl.spec.whatwg.org/#dfn-member": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"members","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-member"},
 "https://webidl.spec.whatwg.org/#dfn-namespace": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"namespace","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-namespace"},
 "https://webidl.spec.whatwg.org/#dfn-namespace-member": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"namespace member","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-namespace-member"},
+"https://webidl.spec.whatwg.org/#dfn-operation": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"operation","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-operation"},
+"https://webidl.spec.whatwg.org/#dfn-overloaded": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"overloaded","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-overloaded"},
 "https://webidl.spec.whatwg.org/#dfn-partial-interface": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"partial interface","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-partial-interface"},
 "https://webidl.spec.whatwg.org/#dfn-partial-namespace": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"partial namespace","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-partial-namespace"},
+"https://webidl.spec.whatwg.org/#dfn-xattr-no-arguments": {"export":true,"for_":["extended attribute"],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"takes no arguments","type":"dfn","url":"https://webidl.spec.whatwg.org/#dfn-xattr-no-arguments"},
 "https://webidl.spec.whatwg.org/#interface-mixin": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"interface mixin","type":"dfn","url":"https://webidl.spec.whatwg.org/#interface-mixin"},
 "https://webidl.spec.whatwg.org/#interface-mixin-member": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"interface mixin member","type":"dfn","url":"https://webidl.spec.whatwg.org/#interface-mixin-member"},
 "https://webidl.spec.whatwg.org/#partial-interface-mixin": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"partial interface mixin","type":"dfn","url":"https://webidl.spec.whatwg.org/#partial-interface-mixin"},
@@ -1506,5 +2206,92 @@ window.addEventListener("resize", () => {
     // Hide any open ref hint.
     hideAllRefHints();
 });
+}
+</script>
+<script>/* Boilerplate: script-var-click-highlighting */
+"use strict";
+{
+/*
+Color-choosing design:
+
+* Colors are ordered by goodness.
+* On clicking a var, give it the earliest color
+    with the lowest usage in the algorithm.
+* On re-clicking, re-use the var's most recent color
+    if that's not currently being used elsewhere.
+*/
+
+const COLOR_COUNT = 7;
+
+document.addEventListener("click", e=>{
+    if(e.target.nodeName == "VAR") {
+        highlightSameAlgoVars(e.target);
+    }
+});
+
+function highlightSameAlgoVars(v) {
+    // Find the algorithm container.
+    let algoContainer = findAlgoContainer(v);
+
+    // Not highlighting document-global vars,
+    // too likely to be unrelated.
+    if(algoContainer == null) return;
+
+    const varName = nameFromVar(v);
+    if(!v.hasAttribute("data-var-color")) {
+        const newColor = chooseHighlightColor(algoContainer, v);
+        for(const el of algoContainer.querySelectorAll("var")) {
+            if(nameFromVar(el) == varName) {
+                el.setAttribute("data-var-color", newColor);
+                el.setAttribute("data-var-last-color", newColor);
+            }
+        }
+    } else {
+        for(const el of algoContainer.querySelectorAll("var")) {
+            if(nameFromVar(el) == varName) {
+                el.removeAttribute("data-var-color");
+            }
+        }
+    }
+}
+function findAlgoContainer(el) {
+    while(el != document.body) {
+        if(el.hasAttribute("data-algorithm")) return el;
+        el = el.parentNode;
+    }
+    return null;
+}
+function nameFromVar(el) {
+    return el.textContent.replace(/(\s|\xa0)+/g, " ").trim();
+}
+function colorCountsFromContainer(container) {
+    const namesFromColor = Array.from({length:COLOR_COUNT}, x=>new Set());
+    for(let v of container.querySelectorAll("var[data-var-color]")) {
+        let color = +v.getAttribute("data-var-color");
+        namesFromColor[color].add(nameFromVar(v));
+    }
+
+    return namesFromColor.map(x=>x.size);
+}
+function leastUsedColor(colors) {
+    // Find the earliest color with the lowest count.
+    let minCount = Infinity;
+    let minColor = null;
+    for(var i = 0; i < colors.length; i++) {
+        if(colors[i] < minCount) {
+            minColor = i;
+            minCount = colors[i];
+        }
+    }
+    return minColor;
+}
+function chooseHighlightColor(container, v) {
+    const colorCounts = colorCountsFromContainer(container);
+    if(v.hasAttribute("data-var-last-color")) {
+        let color = +v.getAttribute("data-var-last-color");
+        if(colorCounts[color] == 0) return color;
+    }
+    return leastUsedColor(colorCounts);
+}
 }
 </script>
