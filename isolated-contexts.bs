@@ -89,45 +89,6 @@ the [Isolated Web Apps Explainer](https://github.com/WICG/isolated-web-apps).
 
 <dfn export>Isolated context</dfn> will be defined here.
 
-
-
-
-
-
-
-
-
-<!--
-BCG: https://html.spec.whatwg.org/multipage/document-sequences.html#tlbc-group
-BCG swap: https://html.spec.whatwg.org/multipage/browsers.html#browsing-context-group-switches-due-to-cross-origin-opener-policy
-
-Docs:
-Mike notes: https://docs.google.com/document/d/1KJ3ApOiVc_wWEPXxzKJXTiFTvuI_nAu5pWvrl75vhYY/edit?usp=sharing
-go/securerer-contexts
-HTM security: https://docs.google.com/document/d/16mo3zmnUhpMzKNfbGFP9_x5ENeC6mgPHmhOso8XDf-U/edit?usp=sharing&resourcekey=0-1praImfRYPNcf6Ep5UUV0A
-https://w3c.github.io/webappsec-csp/#directive-frame-ancestors gives some
-good justification of ancestor rules
-
-
-IsolatedContext if:
-  - sufficient CSP
-  - UI redressing (CSP rule)
-  - COI
-  - Environment has set of known resources
-  - top-level content or same origin descendent ?? needed?
-
-If IsolatedContext:
-  - Storage Key dual-keyed (remove when actually spec'd)
-  - Integrity of subresources and navigations
-    - Maybe say something (environment?) has a set of known resources,
-      all navigations and subresources must be present in this set?
-
-TODO:
-  Basic non-normative
-  Polish
--->
-
-
 This is a monkey patch specificiation that makes the following modifications:
 
 *   [[CSP]] will define the characteristics of a policy that's robust enough to
