@@ -51,31 +51,6 @@ urlPrefix: https://w3c.github.io/webappsec-csp/; spec:CSP3
     "authors": [ "Mike West" ],
     "href": "https://github.com/mikewest/securer-contexts",
     "title": "Securer Contexts"
-  },
-  "uisecurity": {
-    "authors": [
-      "Brad Hill"
-    ],
-    "href": "https://www.w3.org/TR/UISecurity/",
-    "title": "User Interface Security and the Visibility API",
-    "status": "WD",
-    "publisher": "W3C",
-    "deliveredBy": [
-      {
-        "url": "https://www.w3.org/groups/wg/webappsec/",
-        "shortname": "s_webappsec"
-      }
-    ],
-    "versions": [
-      "UISecurity-20160607",
-      "UISecurity-20140318",
-      "UISecurity-20130523",
-      "UISecurity-20121120"
-    ],
-    "edDraft": "https://w3c.github.io/webappsec-uisecurity/index.html",
-    "repository": "https://github.com/w3c/webappsec-uisecurity",
-    "id": "UISecurity",
-    "date": "7 June 2016"
   }
 }
 </pre>
@@ -133,7 +108,7 @@ mitigate injection attacks</dfn> if the following algorithm returns
     1.  Let |meets object requirements|, |meets base requirements|,
         |meets script requirements|, |meets style requirements|,
         |meets subresource requirements|, and |meets trusted type requirements|
-        be [=booleans=] whose value is `false`.
+        be [=booleans=] whose values are `false`.
 
     1.  [=For each=] |policy| in |policies|:
 
@@ -245,7 +220,7 @@ if the following algorithm returns "`Sufficient`":
 
         *   |active directive| is not null
         *   All [=source expressions=] in |active directive| are an
-            [=ASCII case-insensitive=] match for the string "`'none'`",
+            [=ASCII case-insensitive=] match for the strings "`'none'`",
             "`'self'`", or "`'wasm-unsafe-eval'`".
 
     1.  Return "`Not sufficient`".
@@ -267,7 +242,7 @@ the following algorithm returns "`Sufficient`":
 
             *   |directive|'s [=directive/name=] is "`style-src`".
             *   All [=source expressions=] in |active directive| are an
-                [=ASCII case-insensitive=] match for the string "`'none'`",
+                [=ASCII case-insensitive=] match for the strings "`'none'`",
                 "`'self'`", or "`'unsafe-inline'`".
 
     1.  Return "`Not sufficient`".
