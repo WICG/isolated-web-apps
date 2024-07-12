@@ -57,14 +57,36 @@ urlPrefix: https://w3c.github.io/webappsec-csp/; spec:CSP3
 
 # Introduction # {#introduction}
 
-This specification is currently being drafted. For more background, please see
-the [Isolated Web Apps Explainer](https://github.com/WICG/isolated-web-apps).
+Many powerful capabilities cannot safely be enabled in the Web Platform as it
+is defined today. Some may break the platform's fundamental security
+primitives, others may be too complex or technical to expect users to make
+informed decisions about. Exposing these capabilities requires establishing
+more trust in a page's content than the web can currently provide.
+[Isolated Web Apps](https://github.com/WICG/isolated-web-apps) define one method
+of establishing this trust by requiring third-party attestation before
+enabling particularly powerful capabilities.
+
+Deciding whether a page is trusted enough to access powerful capabilities
+requires knowing the contents and behavior of the page; attestations of trust
+are only meaningful if the code being vouched for is the same code being
+executed. Because of this, any system seeking to delegate trust decisions within
+a page must provide a method of validating the integrity of the page and the
+executable content within it.
+
+Additionally, content utilizing powerful capabilities must be isolated from
+a user's default browsing session. This is to both protect traditional web
+sites from potentially sandbox-piercing capabilities, and to protect the
+page using powerful capabilities from attack from traditional web pages.
+
+This specification defines a method of establishing these properties, integrity
+and isolation, in web content.
+
 
 # Isolated Contexts # {#isolated-contexts}
 
-<dfn export>Isolated context</dfn> will be defined here.
-
-This is a monkey patch specification that makes the following modifications:
+[=Isolated contexts=] define a minimum standard of isolation and integrity for
+executable content within a web page. They are defined through a series of
+monkey patches to existing specifications:
 
 *   [[CSP]] will define the characteristics of a policy that's robust enough to
     meaningfully defend against attack. It builds on what we've learned from
@@ -386,10 +408,9 @@ Note: Because the definition of meaningful injection and UI Redressing
 mitigation for a CSP list depends only upon the header-delivered policies,
 these properties will not mutate during an environment's lifetime.
 
-<div algorithm="environment settings object enforces isolation and integrity">
-An [=environment settings object=] |environment| is said to
-<dfn for="environment settings object" export>
-enforce isolation and integrity</dfn> if the following algorithm returns `true`:
+<div algorithm="environment settings object is an isolated context">
+An [=environment settings object=] |environment| is an
+<dfn export>isolated context</dfn> if the following algorithm returns `true`:
     1.  Let |browsing context group| be the [=browsing context group=] that 
         |environment| belongs to.
     1.  If |environment| does not [=environment settings object/meaningfully
@@ -561,10 +582,9 @@ after similarly handling [{{CrossOriginIsolated}}] (step 4 below).
       then return false.
     </li>
     <li><ins>
-        If |realm|'s [=realm/settings object=] does not
-        [=environment settings object/enforce isolation and integrity=], and
-        |construct| is [=conditionally exposed=] on [{{IsolatedContext}}], then
-        return `false`.
+        If |realm|'s [=realm/settings object=] is not an [=isolated context=],
+        and |construct| is [=conditionally exposed=] on [{{IsolatedContext}}],
+        then return `false`.
     </ins></li>
     <li>Return true.</li>
   </ol>
