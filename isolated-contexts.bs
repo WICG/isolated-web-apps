@@ -84,7 +84,7 @@ and isolation, in web content.
 
 # Isolated Contexts # {#isolated-contexts}
 
-[=Isolated Contexts=] define a minimum standard of isolation and integrity for
+[=Isolated contexts=] define a minimum standard of isolation and integrity for
 executable content within a web page. They are defined through a series of
 monkey patches to existing specifications:
 
