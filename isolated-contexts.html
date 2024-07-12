@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version a1dabb26c, updated Mon Jun 17 15:00:44 2024 -0700" name="generator">
   <link href="https://wicg.github.io/isolated-web-apps/isolated-contexts" rel="canonical">
-  <meta content="8636e14af75c5a04462899c8620ad2112c58ab05" name="revision">
+  <meta content="e86e60770d4df9c1e71aa847222c2871addaecdd" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -589,7 +589,7 @@ var[data-var-color="6"] { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBC
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Isolated Contexts</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-06-26">26 June 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-07-12">12 July 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -686,11 +686,29 @@ minimum standards of isolation and integrity are met.</p>
   </nav>
   <main>
    <h2 class="heading settled" data-level="1" id="introduction"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#introduction"></a></h2>
-   <p>This specification is currently being drafted. For more background, please see
-the <a href="https://github.com/WICG/isolated-web-apps">Isolated Web Apps Explainer</a>.</p>
+   <p>Many powerful capabilities cannot safely be enabled in the Web Platform as it
+is defined today. Some may break the platform’s fundamental security
+primitives, others may be too complex or technical to expect users to make
+informed decisions about. Exposing these capabilities requires establishing
+more trust in a page’s content than the web can currently provide. <a href="https://github.com/WICG/isolated-web-apps">Isolated Web Apps</a> define one method
+of establishing this trust by requiring third-party attestation before
+enabling particularly powerful capabilities.</p>
+   <p>Deciding whether a page is trusted enough to access powerful capabilities
+requires knowing the contents and behavior of the page; attestations of trust
+are only meaningful if the code being vouched for is the same code being
+executed. Because of this, any system seeking to delegate trust decisions within
+a page must provide a method of validating the integrity of the page and the
+executable content within it.</p>
+   <p>Additionally, content utilizing powerful capabilities must be isolated from
+a user’s default browsing session. This is to both protect traditional web
+sites from potentially sandbox-piercing capabilities, and to protect the
+page using powerful capabilities from attack from traditional web pages.</p>
+   <p>This specification defines a method of establishing these properties, integrity
+and isolation, in web content.</p>
    <h2 class="heading settled" data-level="2" id="isolated-contexts"><span class="secno">2. </span><span class="content">Isolated Contexts</span><a class="self-link" href="#isolated-contexts"></a></h2>
-   <p><dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="isolated-context">Isolated context</dfn> will be defined here.</p>
-   <p>This is a monkey patch specification that makes the following modifications:</p>
+   <p><a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context">Isolated contexts</a> define a minimum standard of isolation and integrity for
+executable content within a web page. They are defined through a series of
+monkey patches to existing specifications:</p>
    <ul>
     <li data-md>
      <p><a data-link-type="biblio" href="#biblio-csp" title="Content Security Policy Level 3">[CSP]</a> will define the characteristics of a policy that’s robust enough to
@@ -709,7 +727,7 @@ an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappap
 relies on the changes above to control the exposure of a given WebIDL
 construct.</p>
     <li data-md>
-     <p><a data-link-type="biblio" href="#biblio-storage" title="Storage Standard">[STORAGE]</a> will define the double-keying requirements of <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context">Isolated Contexts</a>.</p>
+     <p><a data-link-type="biblio" href="#biblio-storage" title="Storage Standard">[STORAGE]</a> will define the double-keying requirements of <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context①">Isolated Contexts</a>.</p>
    </ul>
    <h2 class="heading settled" data-level="3" id="monkey"><span class="secno">3. </span><span class="content">Monkey Patches</span><a class="self-link" href="#monkey"></a></h2>
    <h3 class="heading settled" data-level="3.1" id="monkey-csp"><span class="secno">3.1. </span><span class="content">Content Security Policy</span><a class="self-link" href="#monkey-csp"></a></h3>
@@ -959,8 +977,8 @@ attacks</dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/
    <p class="note" role="note"><span class="marker">Note:</span> Because the definition of meaningful injection and UI Redressing
 mitigation for a CSP list depends only upon the header-delivered policies,
 these properties will not mutate during an environment’s lifetime.</p>
-   <div class="algorithm" data-algorithm="environment settings object enforces isolation and integrity">
-     An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object③">environment settings object</a> <var>environment</var> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="enforce isolation and integrity" id="environment-settings-object-enforce-isolation-and-integrity"> enforce isolation and integrity</dfn> if the following algorithm returns <code>true</code>: 
+   <div class="algorithm" data-algorithm="environment settings object is an isolated context">
+     An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object③">environment settings object</a> <var>environment</var> is an <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="isolated-context">isolated context</dfn> if the following algorithm returns <code>true</code>: 
     <ol>
      <li data-md>
       <p>Let <var>browsing context group</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group④">browsing context group</a> that <var>environment</var> belongs to.</p>
@@ -1028,7 +1046,7 @@ non-trivial refactoring of how the <a data-link-type="biblio" href="#biblio-sri"
 the hook created in HTML above:</p>
    <h4 class="heading settled dfn-paneled idl-code" data-dfn-type="extended-attribute" data-export data-level="3.4.1" data-lt="IsolatedContext" id="IsolatedContext"><span class="secno">3.4.1. </span><span class="content"> [IsolatedContext] </span><a class="self-link" href="#IsolatedContext" id="ref-for-IsolatedContext"></a></h4>
    <p>If the [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext①⓪">IsolatedContext</a></code>] <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-extended-attribute" id="ref-for-dfn-extended-attribute">extended attribute</a> appears on an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface">interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-interface" id="ref-for-dfn-partial-interface">partial interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin" id="ref-for-interface-mixin">interface mixin</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#partial-interface-mixin" id="ref-for-partial-interface-mixin">partial interface mixin</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-callback-interface" id="ref-for-dfn-callback-interface">callback interface</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace" id="ref-for-dfn-namespace">namespace</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-partial-namespace" id="ref-for-dfn-partial-namespace">partial namespace</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface-member" id="ref-for-dfn-interface-member">interface member</a>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#interface-mixin-member" id="ref-for-interface-mixin-member">interface mixin member</a>, or <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-namespace-member" id="ref-for-dfn-namespace-member">namespace member</a>,
-it indicates that the construct is <a data-link-type="dfn" href="#dfn-exposed" id="ref-for-dfn-exposed">exposed</a> only within an <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context①">isolated context</a>.
+it indicates that the construct is <a data-link-type="dfn" href="#dfn-exposed" id="ref-for-dfn-exposed">exposed</a> only within an <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context②">isolated context</a>.
 The [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext①">IsolatedContext</a></code>] extended attribute must not be used
 on any other construct.</p>
    <p>The [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext②">IsolatedContext</a></code>] extended attribute must <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-xattr-no-arguments" id="ref-for-dfn-xattr-no-arguments">take no arguments</a>.</p>
@@ -1062,14 +1080,15 @@ after similarly handling [<code class="idl"><a data-link-type="idl" href="https:
       and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed①">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#CrossOriginIsolated" id="ref-for-CrossOriginIsolated①">CrossOriginIsolated</a></code>],
       then return false. 
      <li>
-      <ins> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object②">settings object</a> does not <a data-link-type="dfn" href="#environment-settings-object-enforce-isolation-and-integrity" id="ref-for-environment-settings-object-enforce-isolation-and-integrity">enforce isolation and integrity</a>, and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed②">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑨">IsolatedContext</a></code>], then
-        return <code>false</code>. </ins>
+      <ins> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object②">settings object</a> is not an <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context③">isolated context</a>,
+        and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed②">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="#IsolatedContext" id="ref-for-IsolatedContext⑨">IsolatedContext</a></code>],
+        then return <code>false</code>. </ins>
      <li>Return true.
     </ol>
    </div>
    <h3 class="heading settled" data-level="3.5" id="monkey-storage"><span class="secno">3.5. </span><span class="content">Storage</span><a class="self-link" href="#monkey-storage"></a></h3>
    <p>The <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#obtain-a-storage-key-for-non-storage-purposes" id="ref-for-obtain-a-storage-key-for-non-storage-purposes">obtain a storage key for non-storage purposes</a> algorithm is extended to
-require double-keying on all storage within a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group⑥">browsing context group</a> containing <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context②">Isolated Contexts</a>.</p>
+require double-keying on all storage within a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#browsing-context-group" id="ref-for-browsing-context-group⑥">browsing context group</a> containing <a data-link-type="dfn" href="#isolated-context" id="ref-for-isolated-context④">Isolated Contexts</a>.</p>
    <div class="algorithm" data-algorithm="obtain a storage key for non-storage purposes isolated context">
      To obtain a storage key for non-storage purposes, given an <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment"> environment</a> <var>environment</var>, run these steps: 
     <ol>
@@ -1116,11 +1135,10 @@ and it can be removed.</p>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#environment-settings-object-enforce-isolation-and-integrity">enforce isolation and integrity</a><span>, in § 3.2.2</span>
    <li><a href="#dfn-exposed">exposed</a><span>, in § 3.4.2</span>
    <li><a href="#browsing-context-group-integrity-origin">integrity origin</a><span>, in § 3.2.1</span>
    <li><a href="#browsing-context-group-integrity-verification-algorithm">integrity verification algorithm</a><span>, in § 3.2.1</span>
-   <li><a href="#isolated-context">Isolated context</a><span>, in § 2</span>
+   <li><a href="#isolated-context">isolated context</a><span>, in § 3.2.2</span>
    <li><a href="#IsolatedContext">IsolatedContext</a><span>, in § 3.4</span>
    <li><a href="#monkey-main-fetch">main fetch</a><span>, in § 3.3.2</span>
    <li>
@@ -1529,14 +1547,13 @@ let dfnPanelData = {
 "eab3771a": {"dfnID":"eab3771a","dfnText":"inherit","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-inherit"}],"title":"3.4.1. \n  [IsolatedContext]\n"}],"url":"https://webidl.spec.whatwg.org/#dfn-inherit"},
 "eb1b1af3": {"dfnID":"eb1b1af3","dfnText":"network error","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-network-error"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"https://fetch.spec.whatwg.org/#concept-network-error"},
 "ee7bba09": {"dfnID":"ee7bba09","dfnText":"response","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response"}],"title":"3.2.1. Integrity"},{"refs":[{"id":"ref-for-concept-response\u2460"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"https://fetch.spec.whatwg.org/#concept-response"},
-"environment-settings-object-enforce-isolation-and-integrity": {"dfnID":"environment-settings-object-enforce-isolation-and-integrity","dfnText":"\nenforce isolation and integrity","external":false,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object-enforce-isolation-and-integrity"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"}],"url":"#environment-settings-object-enforce-isolation-and-integrity"},
 "environment-settings-object-meaningfully-mitigate-injection-attacks": {"dfnID":"environment-settings-object-meaningfully-mitigate-injection-attacks","dfnText":"meaningfully mitigate injection\nattacks","external":false,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object-meaningfully-mitigate-injection-attacks"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"#environment-settings-object-meaningfully-mitigate-injection-attacks"},
 "environment-settings-object-mitigate-ui-redressing-attacks": {"dfnID":"environment-settings-object-mitigate-ui-redressing-attacks","dfnText":"mitigate UI Redressing attacks\n","external":false,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object-mitigate-ui-redressing-attacks"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"#environment-settings-object-mitigate-ui-redressing-attacks"},
 "f78d5b5c": {"dfnID":"f78d5b5c","dfnText":"origin","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-request-origin"}],"title":"3.3.1. Verify the integrity of a response"}],"url":"https://fetch.spec.whatwg.org/#concept-request-origin"},
 "f7f36561": {"dfnID":"f7f36561","dfnText":"concrete","external":true,"refSections":[{"refs":[{"id":"ref-for-cross-origin-isolation-concrete"}],"title":"3.2.2. Environment Settings Object properties"}],"url":"https://html.spec.whatwg.org/multipage/document-sequences.html#cross-origin-isolation-concrete"},
 "f937b7b6": {"dfnID":"f937b7b6","dfnText":"continue","external":true,"refSections":[{"refs":[{"id":"ref-for-iteration-continue"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"},{"refs":[{"id":"ref-for-iteration-continue\u2460"}],"title":"3.1.10. Does a policy meaningfully mitigate UI Redressing attacks?"}],"url":"https://infra.spec.whatwg.org/#iteration-continue"},
 "fa5ee9c5": {"dfnID":"fa5ee9c5","dfnText":"creation url","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-environment-creation-url"}],"title":"3.5. Storage"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url"},
-"isolated-context": {"dfnID":"isolated-context","dfnText":"Isolated context","external":false,"refSections":[{"refs":[{"id":"ref-for-isolated-context"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-isolated-context\u2460"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-isolated-context\u2461"}],"title":"3.5. Storage"}],"url":"#isolated-context"},
+"isolated-context": {"dfnID":"isolated-context","dfnText":"isolated context","external":false,"refSections":[{"refs":[{"id":"ref-for-isolated-context"},{"id":"ref-for-isolated-context\u2460"}],"title":"2. Isolated Contexts"},{"refs":[{"id":"ref-for-isolated-context\u2461"}],"title":"3.4.1. \n  [IsolatedContext]\n"},{"refs":[{"id":"ref-for-isolated-context\u2462"}],"title":"3.4.2. Patches to the \"exposed\" algorithm"},{"refs":[{"id":"ref-for-isolated-context\u2463"}],"title":"3.5. Storage"}],"url":"#isolated-context"},
 "monkey-main-fetch": {"dfnID":"monkey-main-fetch","dfnText":"main fetch","external":false,"refSections":[{"refs":[{"id":"ref-for-monkey-main-fetch"}],"title":"3.3.2. Patches to the \"Main Fetch\" algorithm"}],"url":"#monkey-main-fetch"},
 "policy-sufficiently-blocks-insecure-subresources": {"dfnID":"policy-sufficiently-blocks-insecure-subresources","dfnText":"sufficiently blocks insecure\nsubresources","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-blocks-insecure-subresources"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-blocks-insecure-subresources"},
 "policy-sufficiently-mitigates-dom-sinks": {"dfnID":"policy-sufficiently-mitigates-dom-sinks","dfnText":"sufficiently mitigates DOM sinks","external":false,"refSections":[{"refs":[{"id":"ref-for-policy-sufficiently-mitigates-dom-sinks"}],"title":"3.1.1. Does a policy meaningfully mitigate injection attacks?"}],"url":"#policy-sufficiently-mitigates-dom-sinks"},
@@ -1940,7 +1957,6 @@ let refsData = {
 "#csp-list-meaningfully-mitigate-injection-attacks": {"export":true,"for_":["CSP list"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"mitigate-injection","type":"dfn","url":"#csp-list-meaningfully-mitigate-injection-attacks"},
 "#csp-list-meaningfully-mitigate-ui-redressing-attacks": {"export":true,"for_":["CSP list"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"mitigate-ui-redressing","type":"dfn","url":"#csp-list-meaningfully-mitigate-ui-redressing-attacks"},
 "#dfn-exposed": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"exposed","type":"dfn","url":"#dfn-exposed"},
-"#environment-settings-object-enforce-isolation-and-integrity": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"enforce isolation and integrity","type":"dfn","url":"#environment-settings-object-enforce-isolation-and-integrity"},
 "#environment-settings-object-meaningfully-mitigate-injection-attacks": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"meaningfully mitigate injection attacks","type":"dfn","url":"#environment-settings-object-meaningfully-mitigate-injection-attacks"},
 "#environment-settings-object-mitigate-ui-redressing-attacks": {"export":true,"for_":["environment settings object"],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"mitigate ui redressing attacks","type":"dfn","url":"#environment-settings-object-mitigate-ui-redressing-attacks"},
 "#isolated-context": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"isolated-contexts","spec":"isolated-contexts-1","status":"local","text":"isolated context","type":"dfn","url":"#isolated-context"},
