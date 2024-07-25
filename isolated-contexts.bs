@@ -39,6 +39,9 @@ spec:webidl; type:dfn; text:namespace
 urlPrefix: https://w3c.github.io/webappsec-csp/; spec:CSP3
     type: abstract-op
         text: Get fetch directive fallback list; url: #directive-fallback-list
+urlPrefix: https://w3c.github.io/trusted-types/dist/spec/; spec:trusted-types
+    type: dfn
+        text: require-trusted-types-for-directive
 </pre>
 <pre class=biblio>
 {
@@ -315,10 +318,10 @@ Possible return values are "`Sufficient`" and "`Not sufficient`".
         1.  Return "`Sufficient`" if all of the following are true:
 
             *   |directive|'s [=directive/name=] is
-                "`<a href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-directive">require-trusted-types-for</a>`".
+                "<code>[=require-trusted-types-for-directive|require-trusted-types-for=]</code>".
                 [[!TRUSTED-TYPES]]
             *   |directive|'s [=directive/value=] [=set/contains=][0] an
-                [=ASCII case-insensitive=] match for the string "<a grammar>`'script'`</a>".
+                [=ASCII case-insensitive=] match for the string "`'script'`".
 
     1.  Return "`Not sufficient`".
 </ol>
