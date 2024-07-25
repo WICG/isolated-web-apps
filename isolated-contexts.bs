@@ -413,14 +413,6 @@ bundle of resources.
 
 ### Environment Settings Object properties ### {#html-environment-properties}
 
-<div algorithm="browsing context group from environment settings object">
-To get the the [=browsing context group=] that an
-[=environment settings object=] |environment| belongs to, run these steps:
-<!-- client -> global -> navigable -> browsing context group -->
-    1.  Let |global object| be |environment|'s [=global object=].
-    1.  TODO
-</div>
-
 <div algorithm="environment settings object mitigates injection">
 An [=environment settings object=] is said to
 <dfn for="environment settings object" export>meaningfully mitigate injection
