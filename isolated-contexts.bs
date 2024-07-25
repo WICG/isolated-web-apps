@@ -205,7 +205,7 @@ the following algorithm returns "`Sufficient`". Possible return values are
         *   |active directive|'s [=directive/value=]'s [=set/size=] is 1
         *   |active directive|'s [=directive/value=][0] is an
             [=ASCII case-insensitive=] match for the string
-            "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-none">none</a>'`".
+            "<a grammar>`'none'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -227,9 +227,7 @@ Possible return values are "`Sufficient`" and "`Not sufficient`".
             *   |directive|'s [=directive/value=]'s [=set/size=] is 1
             *   |directive|'s [=directive/value=][0] is an
                 [=ASCII case-insensitive=] match for either the string
-                "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-none">none</a>'`"
-                or the string
-                "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-self">self</a>'`".
+                "<a grammar>`'none'`</a>" or the string "<a grammar>`'self'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -251,10 +249,8 @@ Possible return values are "`Sufficient`" and "`Not sufficient`".
         *   |active directive| is not null
         *   All [=source expressions=] in |active directive| are an
             [=ASCII case-insensitive=] match for the strings
-            "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-none">none</a>'`",
-            "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-self">self</a>'`",
-            or
-            "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-wasm-unsafe-eval">wasm-unsafe-eval</a>'`".
+            "<a grammar>`'none'`</a>", "<a grammar>`'self'`</a>", or
+            "<a grammar>`'wasm-unsafe-eval'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -277,10 +273,8 @@ Possible return values are "`Sufficient`" and "`Not sufficient`".
             *   |directive|'s [=directive/name=] is "`style-src`".
             *   All [=source expressions=] in |active directive| are an
                 [=ASCII case-insensitive=] match for the strings
-                "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-none">none</a>'`",
-                "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-self">self</a>'`",
-                or
-                "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-unsafe-inline">unsafe-inline</a>'`".
+                "<a grammar>`'none'`</a>", "<a grammar>`'self'`</a>", or
+                "<a grammar>`'unsafe-inline'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -301,9 +295,7 @@ Possible return values are "`Sufficient`" and "`Not sufficient`".
 
         1.  Return "`Not sufficient`" if any [=source expression=] in
             |active directive| is **not** an [=ASCII case-insensitive=] match
-            for the strings
-            "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-none">none</a>'`",
-            "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-self">self</a>'`",
+            for the strings "<a grammar>`'none'`</a>", "<a grammar>`'self'`</a>",
             "`https:`", "`blob:`", or "`data:`".
 
     1.  Return "`Sufficient`"
@@ -326,8 +318,7 @@ Possible return values are "`Sufficient`" and "`Not sufficient`".
                 "`<a href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-directive">require-trusted-types-for</a>`".
                 [[!TRUSTED-TYPES]]
             *   |directive|'s [=directive/value=] [=set/contains=][0] an
-                [=ASCII case-insensitive=] match for the string
-                "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-script">script</a>'`".
+                [=ASCII case-insensitive=] match for the string "<a grammar>`'script'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -377,9 +368,7 @@ Possible return values are "`Meaningful`" and "`Not meaningful enough`".
                 *   |directive|'s [=directive/value=]'s [=set/size=] is 1
                 *   |directive|'s [=directive/value=][0] is an
                     [=ASCII case-insensitive=] match for either the string
-                    "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-none">none</a>'`"
-                    or the string
-                    "`'<a href="https://w3c.github.io/webappsec-csp/#grammardef-self">self</a>'`".
+                    "<a grammar>`'none'`</a>" or the string "<a grammar>`'self'`</a>".
 
     1. Return "`Not meaningful enough`".
 </ol>
