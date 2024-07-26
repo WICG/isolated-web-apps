@@ -25,7 +25,6 @@ spec:fetch; type:dfn; text:fetch params
 spec:fetch; type:dfn; for:fetch params; text:request
 spec:fetch; type:dfn; text:main fetch
 spec:html; type:dfn; for:environment settings object; text:cross-origin isolated capability
-spec:html; type:dfn; for:environment settings object; text:global object
 spec:html; type:dfn; text:browsing context group
 spec:html; type:dfn; text:concrete
 spec:html; type:dfn; for:/; text:origin
