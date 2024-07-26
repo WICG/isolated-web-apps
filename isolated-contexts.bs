@@ -377,12 +377,20 @@ An <dfn export>integrity verification algorithm</dfn> is an
 [=implementation-defined=] algorithm that accepts a [=request=] and a
 [=response=], and returns a [=boolean=].
 
-A [=user agent=] holds an <dfn export>origin integrity verification map</dfn>,
-which is a [=map=] of [=origins=] to [=integrity verification algorithms=].
-
 Note: A typical [=integrity verification algorithm=] might verify that a
 response body hashes to an expected value, or that it originated from a known
 bundle of resources.
+
+A [=user agent=] holds an <dfn export>origin integrity verification map</dfn>,
+which is a [=map=] of [=tuple origins=] to
+[=integrity verification algorithms=].
+
+Note: How user agents populate the [=origin integrity verification map=] is
+outside the scope of this specification, which is focused on the properties
+needed to establish integrity and isolation.
+<a href="https://github.com/WICG/isolated-web-apps/">Isolated Web Apps</a>
+provide one possible implementation by basing this map on the set of installed
+Isolated Web Apps.
 
 ### Environment Settings Object properties ### {#html-environment-properties}
 
