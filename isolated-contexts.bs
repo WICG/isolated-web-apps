@@ -30,7 +30,6 @@ spec:html; type:dfn; text:concrete
 spec:html; type:dfn; for:/; text:origin
 spec:html; type:dfn; for:environment settings object; text:origin
 spec:infra; type:dfn; for:list; text:for each
-spec:infra; type:dfn; for:map; text:exist
 spec:infra; type:dfn; text:user agent
 spec:url; type:dfn; for:/; text:url
 spec:webidl; type:dfn; text:namespace
@@ -418,7 +417,7 @@ An [=environment settings object=] |environment| is an
         Redressing attacks=], return `false`.
     1.  Let |origin| be |environment|'s [=origin=].
     1.  If the [=user agent=]'s [=origin integrity verification map=][|origin|]
-        does not [=exist=], return `false`.
+        does not [=map/exist=], return `false`.
     1.  Return `true`.
 </div>
 
@@ -439,7 +438,7 @@ and a [=response=] |response|:
   <li>Let |origin| be |request|'s [=request/origin=].</li>
   <li>
     If the [=user agent=]'s [=origin integrity verification map=][|origin|]
-    does not [=exist=], return "`not applicable`".
+    does not [=map/exist=], return "`not applicable`".
   </li>
   <li>
     Let |integrity verification algorithm| be the [=user agent=]'s
@@ -601,7 +600,7 @@ environment</a> |environment|, run these steps:
     </ins></li>
     <li><ins>
       If the [=user agent=]'s [=origin integrity verification map=]
-      [|top-level origin|] [=exists=], return a [=tuple=] consisting of
+      [|top-level origin|] [=map/exists=], return a [=tuple=] consisting of
       |top-level origin| and |origin|.
     </ins></li>
 
