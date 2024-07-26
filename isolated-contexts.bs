@@ -30,6 +30,7 @@ spec:html; type:dfn; text:concrete
 spec:html; type:dfn; for:/; text:origin
 spec:html; type:dfn; for:environment settings object; text:origin
 spec:infra; type:dfn; for:list; text:for each
+spec:infra; type:dfn; for:map; text:exist
 spec:infra; type:dfn; text:user agent
 spec:url; type:dfn; for:/; text:url
 spec:webidl; type:dfn; text:namespace
@@ -373,14 +374,12 @@ the associated [=environment settings object/global object=].
 
 ### Integrity ### {#html-integrity}
 
-A [=browsing context group=] has an <dfn for="browsing context group" export>
-integrity origin</dfn>, which is an [=origin=] or `null`.
+An <dfn export>integrity verification algorithm</dfn> is an
+[=implementation-defined=] algorithm that accepts a [=request=] and a
+[=response=], and returns a [=boolean=].
 
-A [=browsing context group=] has an <dfn for="browsing context group" export>
-integrity verification algorithm</dfn>, which is `null` or a [=user agent=]
-defined algorithm that accepts a [=request=] and a [=response=], and returns a
-[=boolean=]. A [=browsing context group=]'s [=integrity verification algorithm=]
-MUST be non-null if its [=integrity origin=] is non-null.
+A [=user agent=] holds an <dfn export>origin integrity verification map</dfn>,
+which is a [=map=] of [=origins=] to [=integrity verification algorithms=].
 
 Note: A typical [=integrity verification algorithm=] might verify that a
 response body hashes to an expected value, or that it originated from a known
@@ -411,18 +410,15 @@ these properties will not mutate during an environment's lifetime.
 <div algorithm="environment settings object is an isolated context">
 An [=environment settings object=] |environment| is an
 <dfn export>isolated context</dfn> if the following algorithm returns `true`:
-    1.  Let |browsing context group| be the [=browsing context group=] that 
-        |environment| belongs to.
     1.  If |environment| does not [=environment settings object/meaningfully
         mitigate injection attacks=], return `false`.
-    1.  If |browsing context group|'s [=cross-origin isolated capability=] is
+    1.  If |environment|'s [=cross-origin isolated capability=] is
         not [=concrete=], return `false`.
     1.  If |environment| does not [=environment settings object/mitigate UI
         Redressing attacks=], return `false`.
-    1.  If |browsing context group|'s [=browsing context group/integrity
-        origin=] is null, return `false`.
-    1.  If |environment|'s [=origin=] is not equal to [=browsing context group/
-        integrity origin=], return `false`.
+    1.  Let |origin| be |environment|'s [=origin=].
+    1.  If the [=user agent=]'s [=origin integrity verification map=][|origin|]
+        does not [=exist=], return `false`.
     1.  Return `true`.
 </div>
 
@@ -440,24 +436,14 @@ and a [=response=] |response|:
 <ol>
   <li>Let |client| be |request|'s [=request/client=].</li>
   <li>If |client| is `null`, return "`not applicable`".</li>
+  <li>Let |origin| be |request|'s [=request/origin=].</li>
   <li>
-    Let |browsing context group| be the [=browsing context group=] that
-    |client| belongs to.
+    If the [=user agent=]'s [=origin integrity verification map=][|origin|]
+    does not [=exist=], return "`not applicable`".
   </li>
   <li>
-    Let |integrity origin| be |browsing context group|'s [=integrity origin=].
-  </li>
-  <li>
-    Let |integrity verification algorithm| be |browsing context group|'s
-    [=integrity verification algorithm=].
-  </li>
-  <li>
-    If |integrity origin| or |integrity verification algorithm| are `null`,
-    return "`not applicable`".
-  </li>
-  <li>
-    If |request|'s [=request/origin=] is not equal to |integrity origin|,
-    return "`not applicable`".
+    Let |integrity verification algorithm| be the [=user agent=]'s
+    [=origin integrity verification map=][|origin|].
   </li>
   <li>
     If |response|'s [=response/body=] is `null`, return "`invalid`".
@@ -593,8 +579,10 @@ after similarly handling [{{CrossOriginIsolated}}] (step 4 below).
 ## Storage ## {#monkey-storage}
 
 The [=obtain a storage key for non-storage purposes=] algorithm is extended to
-require double-keying on all storage within a [=browsing context group=]
-containing [=Isolated Contexts=].
+require double-keying on all storage belonging to an
+<a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">
+environment</a> with a [=top-level origin=] known by the [=user agent=] to have
+an [=integrity verification algorithm=].
 
 <div algorithm="obtain a storage key for non-storage purposes isolated context">
 To obtain a storage key for non-storage purposes, given an
@@ -609,13 +597,12 @@ environment</a> |environment|, run these steps:
     </li>
 
     <li><ins>
-      Let |integrity origin| be the [=browsing context group/integrity origin=]
-      of the [=browsing context group=] that |environment| belongs to.
+      Let |top-level origin| be |environment|'s [=top-level origin=].
     </ins></li>
-
     <li><ins>
-      If |integrity origin| is non-null, return a [=tuple=] consisting of
-      |integrity origin| and |origin|.
+      If the [=user agent=]'s [=origin integrity verification map=]
+      [|top-level origin|] [=exists=], return a [=tuple=] consisting of
+      |top-level origin| and |origin|.
     </ins></li>
 
     <li>
