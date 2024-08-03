@@ -57,7 +57,7 @@ For example, a manifest hosted at `https://developer.example.com/app/updates.jso
 {
   "versions": [
     {
-      "version:" "5.2.17",
+      "version": "5.2.17",
       "src": "https://cdn.example.com/app-package-5.2.17.swbn"
     },
     {
