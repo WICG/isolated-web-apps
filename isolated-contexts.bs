@@ -38,6 +38,9 @@ spec:webidl; type:dfn; text:namespace
 urlPrefix: https://w3c.github.io/webappsec-csp/; spec:CSP3
     type: abstract-op
         text: Get fetch directive fallback list; url: #directive-fallback-list
+urlPrefix: https://w3c.github.io/trusted-types/dist/spec/; spec:trusted-types
+    type: dfn
+        text: require-trusted-types-for-directive
 </pre>
 <pre class=biblio>
 {
@@ -124,7 +127,8 @@ is the core entry point CSP will expose to HTML.
 A [=CSP list=] |policies| is said to
 <dfn for="CSP list" export local-lt="mitigate-injection">meaningfully
 mitigate injection attacks</dfn> if the following algorithm returns
-"`Meaningful`":
+"`Meaningful`". Possible return values are "`Meaningful`" and
+"`Not meaningful enough`".
 
 <ol class="algorithm">
     1.  Let |meets object requirements|, |meets base requirements|,
@@ -190,7 +194,8 @@ the active directive</dfn> given a [=policy=] |policy| and a |directive name|:
 
 <div algorithm="object requirements">
 A [=policy=] |policy| <dfn for="policy">sufficiently mitigates plugins</dfn> if
-the following algorithm returns "`Sufficient`":
+the following algorithm returns "`Sufficient`". Possible return values are
+"`Sufficient`" and "`Not sufficient`".
 
 <ol class="algorithm">
     1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive| from
@@ -201,7 +206,8 @@ the following algorithm returns "`Sufficient`":
         *   |active directive| is not null
         *   |active directive|'s [=directive/value=]'s [=set/size=] is 1
         *   |active directive|'s [=directive/value=][0] is an
-            [=ASCII case-insensitive=] match for the string "`'none'`".
+            [=ASCII case-insensitive=] match for the string
+            "<a grammar>`'none'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -211,7 +217,8 @@ the following algorithm returns "`Sufficient`":
 
 <div algorithm="base requirements">
 A [=policy=] |policy| <dfn for="policy">sufficiently mitigates relative URL
-manipulation</dfn> if the following algorithm returns "`Sufficient`":
+manipulation</dfn> if the following algorithm returns "`Sufficient`".
+Possible return values are "`Sufficient`" and "`Not sufficient`".
 
 <ol class="algorithm">
     1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
@@ -222,7 +229,7 @@ manipulation</dfn> if the following algorithm returns "`Sufficient`":
             *   |directive|'s [=directive/value=]'s [=set/size=] is 1
             *   |directive|'s [=directive/value=][0] is an
                 [=ASCII case-insensitive=] match for either the string
-                "`'none'`" or the string "`'self'`".
+                "<a grammar>`'none'`</a>" or the string "<a grammar>`'self'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -232,7 +239,8 @@ manipulation</dfn> if the following algorithm returns "`Sufficient`":
 
 <div algorithm="script requirements">
 A [=policy=] |policy| <dfn for="policy">sufficiently mitigates script execution</dfn>
-if the following algorithm returns "`Sufficient`":
+if the following algorithm returns "`Sufficient`".
+Possible return values are "`Sufficient`" and "`Not sufficient`".
 
 <ol class="algorithm">
     1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive| from
@@ -242,8 +250,9 @@ if the following algorithm returns "`Sufficient`":
 
         *   |active directive| is not null
         *   All [=source expressions=] in |active directive| are an
-            [=ASCII case-insensitive=] match for the strings "`'none'`",
-            "`'self'`", or "`'wasm-unsafe-eval'`".
+            [=ASCII case-insensitive=] match for the strings
+            "<a grammar>`'none'`</a>", "<a grammar>`'self'`</a>", or
+            "<a grammar>`'wasm-unsafe-eval'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -253,7 +262,8 @@ if the following algorithm returns "`Sufficient`":
 
 <div algorithm="style requirements">
 A [=policy=] |policy| <dfn for="policy">sufficiently mitigates style evaluation</dfn> if
-the following algorithm returns "`Sufficient`":
+the following algorithm returns "`Sufficient`".
+Possible return values are "`Sufficient`" and "`Not sufficient`".
 
 <ol class="algorithm">
     1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
@@ -264,8 +274,9 @@ the following algorithm returns "`Sufficient`":
 
             *   |directive|'s [=directive/name=] is "`style-src`".
             *   All [=source expressions=] in |active directive| are an
-                [=ASCII case-insensitive=] match for the strings "`'none'`",
-                "`'self'`", or "`'unsafe-inline'`".
+                [=ASCII case-insensitive=] match for the strings
+                "<a grammar>`'none'`</a>", "<a grammar>`'self'`</a>", or
+                "<a grammar>`'unsafe-inline'`</a>".
 
     1.  Return "`Not sufficient`".
 </ol>
@@ -275,7 +286,8 @@ the following algorithm returns "`Sufficient`":
 
 <div algorithm="subresource requirements">
 A [=policy=] |policy| <dfn for="policy">sufficiently blocks insecure
-subresources</dfn> if the following algorithm returns "`Sufficient`":
+subresources</dfn> if the following algorithm returns "`Sufficient`".
+Possible return values are "`Sufficient`" and "`Not sufficient`".
 
 <ol class="algorithm">
     1.  [=For each=] |directive name| in the set [`frame-src`, `connect-src`,
@@ -283,10 +295,10 @@ subresources</dfn> if the following algorithm returns "`Sufficient`":
         1.  <a abstract-op lt="obtain-directive">Obtain</a> |active directive|
             from |policy|, given |directive name|.
 
-        1.  Return "`not sufficient`" if any [=source expression=] in
+        1.  Return "`Not sufficient`" if any [=source expression=] in
             |active directive| is **not** an [=ASCII case-insensitive=] match
-            for the strings "`'none'`", "`'self'`", "`https:`", "`blob:`",
-            or "`data:`".
+            for the strings "<a grammar>`'none'`</a>", "<a grammar>`'self'`</a>",
+            "`https:`", "`blob:`", or "`data:`".
 
     1.  Return "`Sufficient`"
 </ol>
@@ -296,7 +308,8 @@ subresources</dfn> if the following algorithm returns "`Sufficient`":
 
 <div algorithm="trusted type requirements">
 A [=policy=] |policy| <dfn for="policy">sufficiently mitigates DOM sinks</dfn>
-if the following algorithm returns "`Sufficient`":
+if the following algorithm returns "`Sufficient`".
+Possible return values are "`Sufficient`" and "`Not sufficient`".
 
 <ol class="algorithm">
     1.  [=For each=] |directive| in |policy|'s [=policy/directive set=]:
@@ -304,7 +317,8 @@ if the following algorithm returns "`Sufficient`":
         1.  Return "`Sufficient`" if all of the following are true:
 
             *   |directive|'s [=directive/name=] is
-                "`require-trusted-types-for`". [[!TRUSTED-TYPES]]
+                "<code>[=require-trusted-types-for-directive|require-trusted-types-for=]</code>".
+                [[!TRUSTED-TYPES]]
             *   |directive|'s [=directive/value=] [=set/contains=][0] an
                 [=ASCII case-insensitive=] match for the string "`'script'`".
 
@@ -338,7 +352,8 @@ require-trusted-types-for 'script';
 A [=CSP list=] |policies| is said to
 <dfn for="CSP list" export local-lt="mitigate-ui-redressing">meaningfully
 mitigate UI Redressing attacks</dfn> [[UISECURITY]] if the following algorithm
-returns "`Meaningful`":
+returns "`Meaningful`".
+Possible return values are "`Meaningful`" and "`Not meaningful enough`".
 
 <ol class="algorithm">
     1.  [=For each=] |policy| in |policies|:
@@ -355,7 +370,7 @@ returns "`Meaningful`":
                 *   |directive|'s [=directive/value=]'s [=set/size=] is 1
                 *   |directive|'s [=directive/value=][0] is an
                     [=ASCII case-insensitive=] match for either the string
-                    "`'none'`" or the string "`'self'`".
+                    "<a grammar>`'none'`</a>" or the string "<a grammar>`'self'`</a>".
 
     1. Return "`Not meaningful enough`".
 </ol>
@@ -377,10 +392,11 @@ A [=browsing context group=] has an <dfn for="browsing context group" export>
 integrity origin</dfn>, which is an [=origin=] or `null`.
 
 A [=browsing context group=] has an <dfn for="browsing context group" export>
-integrity verification algorithm</dfn>, which is `null` or a [=user agent=]
-defined algorithm that accepts a [=request=] and a [=response=], and returns a
-[=boolean=]. A [=browsing context group=]'s [=integrity verification algorithm=]
-MUST be non-null if its [=integrity origin=] is non-null.
+integrity verification algorithm</dfn>, which is `null` or an
+[=implementation-defined=] algorithm that accepts a [=request=] and a
+[=response=], and returns a [=boolean=]. A [=browsing context group=]'s
+[=integrity verification algorithm=] MUST be non-null if its
+[=integrity origin=] is non-null.
 
 Note: A typical [=integrity verification algorithm=] might verify that a
 response body hashes to an expected value, or that it originated from a known
@@ -415,14 +431,16 @@ An [=environment settings object=] |environment| is an
         |environment| belongs to.
     1.  If |environment| does not [=environment settings object/meaningfully
         mitigate injection attacks=], return `false`.
-    1.  If |browsing context group|'s [=cross-origin isolated capability=] is
-        not [=concrete=], return `false`.
+    1.  If |environment|'s [=cross-origin isolated capability=] is not
+        [=concrete=], return `false`.
     1.  If |environment| does not [=environment settings object/mitigate UI
         Redressing attacks=], return `false`.
     1.  If |browsing context group|'s [=browsing context group/integrity
         origin=] is null, return `false`.
-    1.  If |environment|'s [=origin=] is not equal to [=browsing context group/
-        integrity origin=], return `false`.
+    1.  Let |integrity origin| be |browsing context group|'s
+        [=browsing context group/integrity origin=].
+    1.  If |environment|'s [=origin=] is not [=same origin=] with |integrity
+        origin|, return `false`.
     1.  Return `true`.
 </div>
 
@@ -435,7 +453,8 @@ In Fetch, we'll use the [=integrity verification algorithm=] defined in
 ### Verify the integrity of a response ### {#fetch-verify-response}
 <div algorithm>
 To <dfn>verify the integrity of a response</dfn> given a [=request=] |request|
-and a [=response=] |response|:
+and a [=response=] |response|, run these steps. Possible return values are
+"`not applicable`", "`invalid`", or "`valid`".
 
 <ol>
   <li>Let |client| be |request|'s [=request/client=].</li>
@@ -456,8 +475,8 @@ and a [=response=] |response|:
     return "`not applicable`".
   </li>
   <li>
-    If |request|'s [=request/origin=] is not equal to |integrity origin|,
-    return "`not applicable`".
+    If |request|'s [=request/origin=] is not [=same origin=] with |integrity
+    origin|, return "`not applicable`".
   </li>
   <li>
     If |response|'s [=response/body=] is `null`, return "`invalid`".
