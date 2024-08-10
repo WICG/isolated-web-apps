@@ -61,12 +61,15 @@ urlPrefix: https://w3c.github.io/trusted-types/dist/spec/; spec:trusted-types
 # Introduction # {#introduction}
 
 Throughout its existence the web has been evolved into an increasingly capable
-application platform. Secure Contexts formalize transport security, Cross
-Origin Isolation mitigates side-channel attacks, and device-specific permission
-prompts make device access more scoped and understandable to users. Each of
-these advancements either improved the safety guarantees of the web platform,
-or guided users towards a more accurate expection of a page's behavior, and
-unlocked new classes of capabilities that could be brought safely to the web.
+application platform. [=Secure Contexts=] formalize transport security,
+[=environment settings object/cross-origin isolated capability|Cross Origin
+Isolation=] mitigates side-channel attacks, and browsers and operating systems
+have experimented with permission interfaces based on selecting particular
+files and devices to make access more scoped and understandable to users. Each
+of these advancements either improved the safety guarantees of the web
+platform, or guided users towards a more accurate expection of a page's
+behavior, and unlocked new classes of capabilities that could be brought safely
+to the web.
 
 Despite these advancements, there are some APIs that still cannot safely be
 exposed to the web because they violate the web's security primitives in a way
@@ -111,11 +114,10 @@ specifications.
 
 Integrity is verified through a combination of strict [[CSP]], which ensures
 cross-origin executable content cannot be loaded, and an integrity verification
-algorithm, which is an abstracts mechanism to validate content loaded within a
+algorithm, which is an abstract mechanism to validate content loaded within a
 page. This specification does not mandate a specific validation approach, it
 only defines how one would be used to determine if an environment is an
 Isolated Context.
-
 
 
 ## Which APIs should require an Isolated Context? ## {#which-apis}
@@ -125,8 +127,8 @@ likely violates at least one
 <a href="https://w3ctag.github.io/design-principles/#basic-principles">
 design principle</a> of the web, most commonly that
 <a href="https://w3ctag.github.io/design-principles/#safe-to-browse">
-it should be safe to visit a web page</a>. Before gating an API on
-IsolatedContext, consider the following questions:
+it should be safe to visit a web page</a>. Before requiring an Isolated Context
+to use an API, consider the following questions:
 
 1.  Is a new Web Platform API the only way to address the problems this API is
     trying to solve? Web Extensions and native applications have their place.
@@ -141,11 +143,12 @@ Context can be considered as a last resort.
 
 Part of what makes the web such a unique and successful platform is its lack of
 gatekeepers. Anyone can purchase a domain name and host their content without
-approvals, and with full access to the Web Platform's API surface; everyone has
-equal footing. The security guarantees provided by Isolated Contexts enable
-auditability, which in turn enables attestation. This attestation, usually
-third-party, is the main reason a browser vendor would restrict an API to
-Isolated Contexts. Third-party attestation introduces gatekeepers to the Web
+anyone else's approval, and with full access to the Web Platform's API surface;
+everyone has equal footing. The security guarantees provided by Isolated
+Contexts enable auditability, which in turn enables attestation. The safety
+provided by attestation, either by the browser vendor or a third-party, is the
+main reason an API would be restricted to Isolated Contexts. Parties providing
+attestation services have the potential to become gatekeepers to the Web
 Platform, which is not a desirable direction for the platform to move. Browser
 vendors must be extremely selective about which APIs they allow in Isolated
 Contexts; changing an API so it can be used in a Secure Context should be
