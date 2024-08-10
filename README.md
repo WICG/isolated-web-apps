@@ -4,6 +4,12 @@
 
 This document proposes a way of building applications using web standard technologies that will have useful security properties unavailable to normal web pages. They are tentatively called Isolated Web Apps (IWAs). Rather than being hosted on live web servers and fetched over HTTPS, these applications are packaged into [Web Bundles](https://wpack-wg.github.io/bundled-responses/draft-ietf-wpack-bundled-responses.html), signed by their developer, and distributed to end-users through one or more of the potential methods described below.
 
+Additional documents in this repo:
+*   [Permissions Explainer](./Permissions.md) describes `permissions_policy` manifest field and interaction with the `Permissions-Policy` header.
+*   [Scheme Explainer](./Scheme.md) describes the `isolated-app:` scheme and signed web bundlge IDs.
+*   [Updates Explainer](./Updates.md) describes the `version`, `update_manifest_url` manifest fields and updating process.
+*   [Isolated Contexts Specification](https://wicg.github.io/isolated-web-apps/isolated-contexts.html) 
+
 ## Motivating Use Cases
 
 Content Security Policy (CSP) provides strong protection against cross-site scripting (XSS) vulnerabilities. Transport Layer Security (TLS) and Subresource Integrity (SRI) provide protection against resources being tampered with in transit or when hosted on third-party servers. However, the threat model for some particularly security sensitive applications includes the main application server itself being compromised and serving malicious content. This goes beyond the protections that current policies can provide. An environment stricter than [[SECURE-CONTEXT]](https://w3c.github.io/webappsec-secure-contexts/) is therefore required.
@@ -22,7 +28,7 @@ The core of this proposal is making application updates explicit. Unlike TLS key
 
 The reason for this is both practical and philosophical. If the identity of the site were still based on a DNS name, then it would still be vulnerable to a temporary loss of control over that domain or the infrastructure used to validate ownership of the domain. Philosophically, we also want to avoid building an alternative to certificate authorities which shares the same namespace. Isolated Web Apps therefore use a new scheme (tentatively, `isolated-app://`) where the authority section of the URL is based on the public key used to sign the Web Bundle containing the application resources. More details available in the [Scheme Explainer](./Scheme.md).
 
-An application can be upgraded by replacing its Web Bundle with a new version signed by the same key. Since the key hash is the same, the application retains any local storage associated with the previous version. To prevent downgrade attacks, implementations may require either a `"version"` field in the [Web Application Manifest](https://www.w3.org/TR/appmanifest/), or the signature timestamp to be monotonically increasing.
+An application can be upgraded by replacing its Web Bundle with a new version signed by the same key. Since the key hash is the same, the application retains any local storage associated with the previous version. To prevent downgrade attacks, implementations may require either a [`version`](./Updates.md) [Web Application Manifest](https://www.w3.org/TR/appmanifest/) field, or the signature timestamp to be monotonically increasing.
 
 The protection against server compromise would be no good if the application could be tricked into loading malicious content from outside its Web Bundle, and so a rigorous Content Security Policy is applied,
 
