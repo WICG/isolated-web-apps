@@ -60,47 +60,140 @@ urlPrefix: https://w3c.github.io/trusted-types/dist/spec/; spec:trusted-types
 
 # Introduction # {#introduction}
 
-Many powerful capabilities cannot safely be enabled in the Web Platform as it
-is defined today. Some may break the platform's fundamental security
-primitives, others may be too complex or technical to expect users to make
-informed decisions about. Exposing these capabilities requires establishing
-more trust in a page's content than the web can currently provide.
-[Isolated Web Apps](https://github.com/WICG/isolated-web-apps) define one method
-of establishing this trust by requiring third-party attestation before
-enabling particularly powerful capabilities.
+Throughout its existence the web has been evolved into an increasingly capable
+application platform. [=Secure Contexts=] formalize transport security,
+[=environment settings object/cross-origin isolated capability|Cross Origin
+Isolation=] mitigates side-channel attacks, and browsers and operating systems
+have experimented with permission interfaces based on selecting particular
+files and devices to make access more scoped and understandable to users. Each
+of these advancements either improved the safety guarantees of the web
+platform, or guided users towards a more accurate expection of a page's
+behavior, and unlocked new classes of capabilities that could be brought safely
+to the web.
 
-Deciding whether a page is trusted enough to access powerful capabilities
-requires knowing the contents and behavior of the page; attestations of trust
-are only meaningful if the code being vouched for is the same code being
-executed. Because of this, any system seeking to delegate trust decisions within
-a page must provide a method of validating the integrity of the page and the
-executable content within it.
+Despite these advancements, there are some APIs that still cannot safely be
+exposed to the web because they violate the web's security primitives in a way
+that cannot reasonably be addressed, or cannot be explained clearly enough for
+users to make an informed decision about whether or not to grant a site access
+to them. If the platform cannot prove that exposing an API to a particular site
+is safe, then trust must derive from external attestations.
 
-Additionally, content utilizing powerful capabilities must be isolated from
-a user's default browsing session. This is to both protect traditional web
-sites from potentially sandbox-piercing capabilities, and to protect the
-page using powerful capabilities from attack from traditional web pages.
+Any assertion about the safety or behavior of a page requires knowing the
+contents and behavior of the page; attestations are only meaningful if the code
+that was vouched for is the same code being executed. Because of this, any
+system that delegates trust decisions must be able to verify the integrity of
+the code it is running &mdash; it must know that it matches the code that was
+delegated trust.
 
-This specification defines a method of establishing these properties, integrity
-and isolation, in web content.
+Additionally, capabilities that don't fit within the web's current security
+model have the potential to pose a risk to other web content. This risk is
+bidirectional: sandbox-piercing capabilities could be used to attack other
+sites, and having access to powerful capabilities makes a site a more
+attractive target for bad actors. To mitigate these risks, any content that is
+granted access to a capability through the mechanisms described in this
+specification must be isolated from a user's normal browsing session.
+
+This specification defines <dfn>Isolated Contexts</dfn>, which are environments
+that meet a minimum standard of integrity and isolation, and provide a means of
+auditing web content for the purpose of trustworthiness attestation, and
+isolate this content from the rest of the user's browsing data.
+
+While this specification focuses on user-agent provided capabilities, Isolated
+Contexts could be beneficial for any web page functionality whose threat model
+isn't satisfied by the web's security model. For example, the threat model of
+some end-to-end encrypted chat applications includes server compromise, which
+is not protected against by the web today. The auditability and attestation
+enabled by Isolated Contexts could allow these applications to have confidence
+in the integrity and providence of the code they are running.
 
 
-# Isolated Contexts # {#isolated-contexts}
+# Isolated Contexts # {#isolated-context-info}
 
-[=Isolated contexts=] define a minimum standard of isolation and integrity for
-executable content within a web page. They are defined through a series of
-monkey patches to existing specifications:
+[=Isolated Contexts=] are defined through a series of [[#monkey]] to existing
+specifications.
+
+Integrity is verified through a combination of strict [[CSP]], which ensures
+cross-origin executable content cannot be loaded, and an integrity verification
+algorithm, which is an abstract mechanism to validate content loaded within a
+page. This specification does not mandate a specific validation approach, it
+only defines how one would be used to determine if an environment is an
+Isolated Context.
+
+
+## Which APIs should require an Isolated Context? ## {#which-apis}
+
+As few as possible. Any API that can only be exposed to Isolated Contexts very
+likely violates at least one
+<a href="https://w3ctag.github.io/design-principles/#basic-principles">
+design principle</a> of the web, most commonly that
+<a href="https://w3ctag.github.io/design-principles/#safe-to-browse">
+it should be safe to visit a web page</a>. Before requiring an Isolated Context
+to use an API, consider the following questions:
+
+1.  Is a new Web Platform API the only way to address the problems this API is
+    trying to solve? Web Extensions and native applications have their place.
+1.  If a capability cannot be communicated clearly to users, is there another
+    way to solve the problem that would be more understandable to users, and
+    allow them to make informed decisions about what content can access it?
+1.  Can the scope of the API be reduced such that it no longer poses an
+    unacceptable risk if exposed to an average web page?
+
+If no alternative can be found, requiring an API to run within an Isolated
+Context can be considered as a last resort.
+
+Part of what makes the web such a unique and successful platform is its lack of
+gatekeepers. Anyone can purchase a domain name and host their content without
+anyone else's approval, and with full access to the Web Platform's API surface;
+everyone has equal footing. The security guarantees provided by Isolated
+Contexts enable auditability, which in turn enables attestation. The safety
+provided by attestation, either by the browser vendor or a third-party, is the
+main reason an API would be restricted to Isolated Contexts. Parties providing
+attestation services have the potential to become gatekeepers to the Web
+Platform, which is not a desirable direction for the platform to move. Browser
+vendors must be extremely selective about which APIs they allow in Isolated
+Contexts; changing an API so it can be used in a Secure Context should be
+strongly preferred whenever possible.
+
+
+## UI Treatment ## {#ui-treatment}
+
+This specification focuses on the technical requirements needed to achieve
+integrity and isolation, but if Isolated Contexts are being used to enable
+powerful capabilities, it is also critical to not violate user expectations.
+
+Users trust the web because they've been taught that web pages are safe, have
+limited access to their device, and that they are in control of this access. All
+APIs on the Web Platform have been carefully designed towards this end, with a
+goal of ensuring that
+<a href="https://w3ctag.github.io/design-principles/#safe-to-browse">
+it should be safe to visit a web page</a>.
+
+Browser vendors should consider whether capabilities restricted to Isolated
+Contexts would violate a user's expectation of what a web page is capable of
+doing. Violating these expectations would not only damage trust in the site, but
+has the risk of damaging a user's trust in the Web Platform as a whole.
+
+To mitigate this, steps should be taken by the user agent to convey to users
+that content running within an Isolated Context is not typical web content. This
+could involve an installation flow, or a Web App UI treatment.
+
+
+# Monkey Patches # {#monkey}
+
+This specification makes the following monkey patches to existing
+specifications:
 
 *   [[CSP]] will define the characteristics of a policy that's robust enough to
-    meaningfully defend against attack. It builds on what we've learned from
-    explorations like [[strict-csp]] and [[securer-contexts]], pushing
-    developers towards well-understood and valuable defenses.
+    meaningfully defend against attack, and enforce that cross-origin content
+    cannot be loaded. It builds on what we've learned from explorations like
+    [[strict-csp]] and [[securer-contexts]], pushing developers towards
+    well-understood and valuable defenses.
 
 *   [[HTML]] will define the ways in which those CSP characteristics, along
     with other security requirements, are evaluated within a given context,
     similar conceptually to [=secure context=] and [=environment settings
     object/cross-origin isolated capability=]. It will additionally define
-    [=browsing context group=] properties needed to verify the integrity of
+    [=user agent=] properties needed to verify the integrity of
     an [=origin=]'s resources.
 
 *   [[FETCH]] will add integrity verification to the [=fetch=] algorithm.
@@ -112,7 +205,6 @@ monkey patches to existing specifications:
 *   [[STORAGE]] will define the double-keying requirements of
     [=Isolated Contexts=].
 
-# Monkey Patches # {#monkey}
 
 ## Content Security Policy ## {#monkey-csp}
 
@@ -598,6 +690,7 @@ after similarly handling [{{CrossOriginIsolated}}] (step 4 below).
     <li>Return true.</li>
   </ol>
 </div>
+
 
 ## Storage ## {#monkey-storage}
 
