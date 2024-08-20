@@ -183,26 +183,27 @@ could involve an installation flow, or a Web App UI treatment.
 This specification makes the following monkey patches to existing
 specifications:
 
-*   [[CSP]] will define the characteristics of a policy that's robust enough to
-    meaningfully defend against attack, and enforce that cross-origin content
-    cannot be loaded. It builds on what we've learned from explorations like
-    [[strict-csp]] and [[securer-contexts]], pushing developers towards
+*   Patches to [[CSP]] will define the characteristics of a policy that's robust
+    enough to meaningfully defend against attack, and enforce that cross-origin
+    content cannot be loaded. It builds on what we've learned from explorations
+    like [[strict-csp]] and [[securer-contexts]], pushing developers towards
     well-understood and valuable defenses.
 
-*   [[HTML]] will define the ways in which those CSP characteristics, along
-    with other security requirements, are evaluated within a given context,
-    similar conceptually to [=secure context=] and [=environment settings
-    object/cross-origin isolated capability=]. It will additionally define
-    [=user agent=] properties needed to verify the integrity of
-    an [=origin=]'s resources.
+*   Patches to [[HTML]] will define the ways in which those CSP characteristics,
+    along with other security requirements, are evaluated within a given
+    context, similar conceptually to [=secure context=] and [=environment
+    settings object/cross-origin isolated capability=]. It will additionally
+    define [=user agent=] properties needed to verify the integrity of an
+    [=origin=]'s resources.
 
-*   [[FETCH]] will add integrity verification to the [=fetch=] algorithm.
+*   Patches to [[FETCH]] will add integrity verification to the [=fetch=]
+    algorithm.
 
-*   [[WEBIDL]] will define the `[IsolatedContext]` attribute, and the way it
-    relies on the changes above to control the exposure of a given WebIDL
-    construct.
+*   Patches to [[WEBIDL]] will define the `[IsolatedContext]` attribute, and
+    the way it relies on the changes above to control the exposure of a given
+    WebIDL construct.
 
-*   [[STORAGE]] will define the double-keying requirements of
+*   Patches to [[STORAGE]] will define the double-keying requirements of
     [=Isolated Contexts=].
 
 
@@ -256,7 +257,6 @@ mitigate injection attacks</dfn> if the following algorithm returns
         |meets base requirements|, |meets script requirements|,
         |meets style requirements|, |meets subresource requirements|, and
         |meets trusted type requirements| are all `true`.
-
     1. Return "`Not meaningful enough`".
 </ol>
 </div>
