@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 6270e4735, updated Tue Aug 6 12:12:30 2024 -0700" name="generator">
   <link href="https://wicg.github.io/isolated-web-apps/isolated-contexts" rel="canonical">
-  <meta content="0fc145047c153cc5b281f2e821ad0b677e8f38e7" name="revision">
+  <meta content="a6ecf5de7b16d3cca9ea4755b5f9967638200732" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -611,7 +611,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Isolated Contexts</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-10">10 August 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-20">20 August 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -811,23 +811,24 @@ could involve an installation flow, or a Web App UI treatment.</p>
 specifications:</p>
    <ul>
     <li data-md>
-     <p><a data-link-type="biblio" href="#biblio-csp" title="Content Security Policy Level 3">[CSP]</a> will define the characteristics of a policy that’s robust enough to
-meaningfully defend against attack, and enforce that cross-origin content
-cannot be loaded. It builds on what we’ve learned from explorations like <a data-link-type="biblio" href="#biblio-strict-csp" title="Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)">[strict-csp]</a> and <a data-link-type="biblio" href="#biblio-securer-contexts" title="Securer Contexts">[securer-contexts]</a>, pushing developers towards
+     <p>Patches to <a data-link-type="biblio" href="#biblio-csp" title="Content Security Policy Level 3">[CSP]</a> will define the characteristics of a policy that’s robust
+enough to meaningfully defend against attack, and enforce that cross-origin
+content cannot be loaded. It builds on what we’ve learned from explorations
+like <a data-link-type="biblio" href="#biblio-strict-csp" title="Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)">[strict-csp]</a> and <a data-link-type="biblio" href="#biblio-securer-contexts" title="Securer Contexts">[securer-contexts]</a>, pushing developers towards
 well-understood and valuable defenses.</p>
     <li data-md>
-     <p><a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[HTML]</a> will define the ways in which those CSP characteristics, along
-with other security requirements, are evaluated within a given context,
-similar conceptually to <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#secure-context" id="ref-for-secure-context①">secure context</a> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability①">cross-origin isolated capability</a>. It will additionally define <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a> properties needed to verify the integrity of
-an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin">origin</a>'s resources.</p>
+     <p>Patches to <a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[HTML]</a> will define the ways in which those CSP characteristics,
+along with other security requirements, are evaluated within a given
+context, similar conceptually to <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#secure-context" id="ref-for-secure-context①">secure context</a> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability①">cross-origin isolated capability</a>. It will additionally
+define <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a> properties needed to verify the integrity of an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin">origin</a>'s resources.</p>
     <li data-md>
-     <p><a data-link-type="biblio" href="#biblio-fetch" title="Fetch Standard">[FETCH]</a> will add integrity verification to the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> algorithm.</p>
+     <p>Patches to <a data-link-type="biblio" href="#biblio-fetch" title="Fetch Standard">[FETCH]</a> will add integrity verification to the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> algorithm.</p>
     <li data-md>
-     <p><a data-link-type="biblio" href="#biblio-webidl" title="Web IDL Standard">[WEBIDL]</a> will define the <code>[IsolatedContext]</code> attribute, and the way it
-relies on the changes above to control the exposure of a given WebIDL
-construct.</p>
+     <p>Patches to <a data-link-type="biblio" href="#biblio-webidl" title="Web IDL Standard">[WEBIDL]</a> will define the <code>[IsolatedContext]</code> attribute, and
+the way it relies on the changes above to control the exposure of a given
+WebIDL construct.</p>
     <li data-md>
-     <p><a data-link-type="biblio" href="#biblio-storage" title="Storage Standard">[STORAGE]</a> will define the double-keying requirements of <a data-link-type="dfn" href="#isolated-contexts" id="ref-for-isolated-contexts①">Isolated Contexts</a>.</p>
+     <p>Patches to <a data-link-type="biblio" href="#biblio-storage" title="Storage Standard">[STORAGE]</a> will define the double-keying requirements of <a data-link-type="dfn" href="#isolated-contexts" id="ref-for-isolated-contexts①">Isolated Contexts</a>.</p>
    </ul>
    <h3 class="heading settled" data-level="3.1" id="monkey-csp"><span class="secno">3.1. </span><span class="content">Content Security Policy</span><a class="self-link" href="#monkey-csp"></a></h3>
    <p>In <a data-link-type="biblio" href="#biblio-csp" title="Content Security Policy Level 3">[CSP]</a>, we’ll define an algorithm for evaluating the strength of the
