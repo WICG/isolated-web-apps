@@ -576,8 +576,8 @@ and a [=response=] |response|, run these steps. Possible return values are
 ### Patches to the "Main Fetch" algorithm ### {#fetch-main-fetch}
 The [=main fetch=] algorithm is extended as follows:
 
-<div algorithm>
-To <dfn id="monkey-main-fetch">main fetch</dfn>, given a
+<div>
+To <strong id="monkey-main-fetch">main fetch</strong>, given a
 [=fetch params=] |fetchParams| and an optional boolean
 <var ignore>recursive</var> (default false), run these steps:
 
@@ -660,9 +660,9 @@ that does specify [{{IsolatedContext}}].
 WebIDL's [=exposed=] algorithm is adjusted as follows, adding a single step
 after similarly handling [{{CrossOriginIsolated}}] (step 4 below).
 
-<div algorithm>
+<div>
   An [=interface=], [=callback interface=], [=namespace=], or [=member=]
-  |construct| is <dfn id="dfn-exposed" export>exposed</dfn> in a given
+  |construct| is <strong id="dfn-exposed" export>exposed</strong> in a given
   [=realm=] |realm| if the following steps return true:
 
   <ol>
