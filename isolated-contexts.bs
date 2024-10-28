@@ -38,9 +38,6 @@ spec:webidl; type:dfn; text:namespace
 urlPrefix: https://w3c.github.io/webappsec-csp/; spec:CSP3
     type: abstract-op
         text: Get fetch directive fallback list; url: #directive-fallback-list
-urlPrefix: https://w3c.github.io/trusted-types/dist/spec/; spec:trusted-types
-    type: dfn
-        text: require-trusted-types-for-directive
 </pre>
 <pre class=biblio>
 {
