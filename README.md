@@ -6,7 +6,7 @@ This document proposes a way of building applications using web standard technol
 
 Additional documents in this repo:
 *   [Permissions Explainer](./Permissions.md) describes `permissions_policy` manifest field and interaction with the `Permissions-Policy` header.
-*   [Scheme Explainer](./Scheme.md) describes the `isolated-app:` scheme and signed web bundlge IDs.
+*   [Scheme Explainer](./Scheme.md) describes the `isolated-app:` scheme and signed web bundle IDs.
 *   [Updates Explainer](./Updates.md) describes the `version`, `update_manifest_url` manifest fields and updating process.
 *   [Isolated Contexts Specification](https://wicg.github.io/isolated-web-apps/isolated-contexts.html) 
 
