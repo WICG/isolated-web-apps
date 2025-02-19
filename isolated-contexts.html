@@ -4,9 +4,9 @@
   <title>Isolated Contexts</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 742f3d674, updated Mon Nov 4 14:56:54 2024 -0800" name="generator">
+  <meta content="Bikeshed version 47d87adb7, updated Tue Feb 18 17:18:43 2025 -0800" name="generator">
   <link href="https://wicg.github.io/isolated-web-apps/isolated-contexts.html" rel="canonical">
-  <meta content="18bc736d471d93caa8c54df6bdec8026688d13b1" name="revision">
+  <meta content="8d95a9154b7f3591a737f537afcd44a856322445" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -611,7 +611,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Isolated Contexts</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-11-07">7 November 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2025-02-19">19 February 2025</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -623,7 +623,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright"><a href="https://www.w3.org/policies/#copyright">Copyright</a> © 2024 the Contributors to the Isolated Contexts Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+   <p class="copyright" data-fill-with="copyright"><a href="https://www.w3.org/policies/#copyright">Copyright</a> © 2025 the Contributors to the Isolated Contexts Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
 A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available. </p>
    <hr title="Separator for header">
   </div>
@@ -820,7 +820,7 @@ well-understood and valuable defenses.</p>
      <p>Patches to <a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[HTML]</a> will define the ways in which those CSP characteristics,
 along with other security requirements, are evaluated within a given
 context, similar conceptually to <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#secure-context" id="ref-for-secure-context①">secure context</a> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability①">cross-origin isolated capability</a>. It will additionally
-define <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a> properties needed to verify the integrity of an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin">origin</a>'s resources.</p>
+define <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent">user agent</a> properties needed to verify the integrity of an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin">origin</a>’s resources.</p>
     <li data-md>
      <p>Patches to <a data-link-type="biblio" href="#biblio-fetch" title="Fetch Standard">[FETCH]</a> will add integrity verification to the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> algorithm.</p>
     <li data-md>
@@ -901,7 +901,7 @@ the following algorithm returns "<code>Sufficient</code>". Possible return value
        <li data-md>
         <p><var>active directive</var> is not null</p>
        <li data-md>
-        <p><var>active directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value">value</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size">size</a> is 1</p>
+        <p><var>active directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value">value</a>’s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size">size</a> is 1</p>
        <li data-md>
         <p><var>active directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value①">value</a>[0] is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive">ASCII case-insensitive</a> match for the string
 "<a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-none" id="ref-for-grammardef-none"><code>'none'</code></a>".</p>
@@ -925,7 +925,7 @@ Possible return values are "<code>Sufficient</code>" and "<code>Not sufficient</
          <li data-md>
           <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name①">name</a> is "<code>base-uri</code>".</p>
          <li data-md>
-          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value②">value</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size①">size</a> is 1</p>
+          <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value②">value</a>’s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size①">size</a> is 1</p>
          <li data-md>
           <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value③">value</a>[0] is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive①">ASCII case-insensitive</a> match for either the string
 "<a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-none" id="ref-for-grammardef-none①"><code>'none'</code></a>" or the string "<a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-self" id="ref-for-grammardef-self"><code>'self'</code></a>".</p>
@@ -1060,7 +1060,7 @@ Possible return values are "<code>Meaningful</code>" and "<code>Not meaningful e
            <li data-md>
             <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-name" id="ref-for-directive-name④">name</a> is "<code>frame-ancestors</code>".</p>
            <li data-md>
-            <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value⑤">value</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size②">size</a> is 1</p>
+            <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value⑤">value</a>’s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-size" id="ref-for-list-size②">size</a> is 1</p>
            <li data-md>
             <p><var>directive</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#directive-value" id="ref-for-directive-value⑥">value</a>[0] is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive⑥">ASCII case-insensitive</a> match for either the string
 "<a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-none" id="ref-for-grammardef-none⑤"><code>'none'</code></a>" or the string "<a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-self" id="ref-for-grammardef-self④"><code>'self'</code></a>".</p>
@@ -1088,8 +1088,8 @@ needed to establish integrity and isolation. <a href="https://github.com/WICG/is
 Isolated Web Apps.</p>
    <h4 class="heading settled" data-level="3.2.2" id="html-environment-properties"><span class="secno">3.2.2. </span><span class="content">Environment Settings Object properties</span><a class="self-link" href="#html-environment-properties"></a></h4>
    <div class="algorithm" data-algorithm="environment settings object mitigates injection"> An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object①">environment settings object</a> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="meaningfully mitigate injection attacks" id="environment-settings-object-meaningfully-mitigate-injection-attacks">meaningfully mitigate injection
-attacks</dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container" id="ref-for-concept-settings-object-policy-container">policy container</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list" id="ref-for-policy-container-csp-list">CSP list</a> <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-injection-attacks" id="ref-for-csp-list-meaningfully-mitigate-injection-attacks①"> meaningfully mitigates injection attacks</a>. </div>
-   <div class="algorithm" data-algorithm="environment settings object mitigates ui redressing"> An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object②">environment settings object</a> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="mitigate UI Redressing attacks" id="environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI Redressing attacks </dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container" id="ref-for-concept-settings-object-policy-container①">policy container</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list" id="ref-for-policy-container-csp-list①">CSP list</a> <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-ui-redressing-attacks" id="ref-for-csp-list-meaningfully-mitigate-ui-redressing-attacks"> meaningfully mitigates UI Redressing attacks</a>. </div>
+attacks</dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container" id="ref-for-concept-settings-object-policy-container">policy container</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list" id="ref-for-policy-container-csp-list">CSP list</a> <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-injection-attacks" id="ref-for-csp-list-meaningfully-mitigate-injection-attacks①"> meaningfully mitigates injection attacks</a>. </div>
+   <div class="algorithm" data-algorithm="environment settings object mitigates ui redressing"> An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object②">environment settings object</a> is said to <dfn class="dfn-paneled" data-dfn-for="environment settings object" data-dfn-type="dfn" data-export data-lt="mitigate UI Redressing attacks" id="environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI Redressing attacks </dfn> if its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-policy-container" id="ref-for-concept-settings-object-policy-container①">policy container</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#policy-container-csp-list" id="ref-for-policy-container-csp-list①">CSP list</a> <a data-link-type="dfn" href="#csp-list-meaningfully-mitigate-ui-redressing-attacks" id="ref-for-csp-list-meaningfully-mitigate-ui-redressing-attacks"> meaningfully mitigates UI Redressing attacks</a>. </div>
    <p class="note" role="note"><span class="marker">Note:</span> Because the definition of meaningful injection and UI Redressing
 mitigation for a CSP list depends only upon the header-delivered policies,
 these properties will not mutate during an environment’s lifetime.</p>
@@ -1097,18 +1097,16 @@ these properties will not mutate during an environment’s lifetime.</p>
      An <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object③">environment settings object</a> <var>environment</var> is an <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="isolated-context">isolated context</dfn> if the following algorithm returns <code>true</code>: 
     <ol>
      <li data-md>
-      <p>If <var>environment</var> does not <a data-link-type="dfn" href="#environment-settings-object-meaningfully-mitigate-injection-attacks" id="ref-for-environment-settings-object-meaningfully-mitigate-injection-attacks">meaningfully
-mitigate injection attacks</a>, return <code>false</code>.</p>
+      <p>If <var>environment</var> does not <a data-link-type="dfn" href="#environment-settings-object-meaningfully-mitigate-injection-attacks" id="ref-for-environment-settings-object-meaningfully-mitigate-injection-attacks">meaningfully mitigate injection attacks</a>, return <code>false</code>.</p>
      <li data-md>
       <p>If <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability②">cross-origin isolated capability</a> is
 not <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/document-sequences.html#cross-origin-isolation-concrete" id="ref-for-cross-origin-isolation-concrete">concrete</a>, return <code>false</code>.</p>
      <li data-md>
-      <p>If <var>environment</var> does not <a data-link-type="dfn" href="#environment-settings-object-mitigate-ui-redressing-attacks" id="ref-for-environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI
-Redressing attacks</a>, return <code>false</code>.</p>
+      <p>If <var>environment</var> does not <a data-link-type="dfn" href="#environment-settings-object-mitigate-ui-redressing-attacks" id="ref-for-environment-settings-object-mitigate-ui-redressing-attacks">mitigate UI Redressing attacks</a>, return <code>false</code>.</p>
      <li data-md>
       <p>Let <var>origin</var> be <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①">origin</a>.</p>
      <li data-md>
-      <p>If the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent②">user agent</a>'s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map①">origin integrity verification map</a>[<var>origin</var>]
+      <p>If the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent②">user agent</a>’s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map①">origin integrity verification map</a>[<var>origin</var>]
 does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exist</a>, return <code>false</code>.</p>
      <li data-md>
       <p>Return <code>true</code>.</p>
@@ -1124,9 +1122,9 @@ does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists
      <li>Let <var>client</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client">client</a>.
      <li>If <var>client</var> is <code>null</code>, return "<code>not applicable</code>".
      <li>Let <var>origin</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin" id="ref-for-concept-request-origin">origin</a>.
-     <li> If the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent③">user agent</a>'s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map②">origin integrity verification map</a>[<var>origin</var>]
+     <li> If the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent③">user agent</a>’s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map②">origin integrity verification map</a>[<var>origin</var>]
     does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">exist</a>, return "<code>not applicable</code>". 
-     <li> Let <var>integrity verification algorithm</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent④">user agent</a>'s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map③">origin integrity verification map</a>[<var>origin</var>]. 
+     <li> Let <var>integrity verification algorithm</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent④">user agent</a>’s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map③">origin integrity verification map</a>[<var>origin</var>]. 
      <li> If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body">body</a> is <code>null</code>, return "<code>invalid</code>". 
      <li> If the result of executing <var>integrity verification algorithm</var> given <var>request</var> and <var>response</var> is <code>false</code>, return "<code>invalid</code>". 
      <li> Return "<code>valid</code>". 
@@ -1151,7 +1149,7 @@ does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists
     response handover</a> given <var>fetchParams</var> and <var>response</var>. 
     </ol>
    </div>
-   <p class="note" role="note"><span class="marker">NOTE:</span> Ideally we would integrate integrity verification with <a data-link-type="biblio" href="#biblio-sri" title="Subresource Integrity">[SRI]</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-integrity-metadata" id="ref-for-concept-request-integrity-metadata①">integrity metadata</a> and its supporting algorithms. That would require a
+   <p class="note" role="note"><span class="marker">NOTE:</span> Ideally we would integrate integrity verification with <a data-link-type="biblio" href="#biblio-sri" title="Subresource Integrity">[SRI]</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-integrity-metadata" id="ref-for-concept-request-integrity-metadata①">integrity metadata</a> and its supporting algorithms. That would require a
 non-trivial refactoring of how the <a data-link-type="biblio" href="#biblio-sri" title="Subresource Integrity">[SRI]</a> specification handles <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-integrity-metadata" id="ref-for-concept-request-integrity-metadata②">integrity metadata</a> strings, which may be worth pursuing in the future.</p>
    <h3 class="heading settled" data-level="3.4" id="monkey-webidl"><span class="secno">3.4. </span><span class="content">WebIDL</span><a class="self-link" href="#monkey-webidl"></a></h3>
    <p>In WebIDL, we’ll define the <code>[IsolatedContext]</code> attribute, and wire it up to
@@ -1188,7 +1186,7 @@ after similarly handling [<code class="idl"><a data-link-type="idl" href="https:
      <li> If <var>construct</var>’s <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-exposure-set" id="ref-for-dfn-exposure-set">exposure set</a> is not <code>*</code>, and <var>realm</var>.[[GlobalObject]] does not implement an <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-interface" id="ref-for-dfn-interface④">interface</a> that is in <var>construct</var>’s <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-exposure-set" id="ref-for-dfn-exposure-set①">exposure set</a>, then return false. 
      <li> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object">settings object</a> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#secure-context" id="ref-for-secure-context②">secure context</a>, and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext">SecureContext</a></code>], then
       return false. 
-     <li> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object①">settings object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability③">cross-origin isolated capability</a> is false,
+     <li> If <var>realm</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-realm-settings-object" id="ref-for-concept-realm-settings-object①">settings object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-cross-origin-isolated-capability" id="ref-for-concept-settings-object-cross-origin-isolated-capability③">cross-origin isolated capability</a> is false,
       and <var>construct</var> is <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-conditionally-exposed" id="ref-for-dfn-conditionally-exposed①">conditionally exposed</a> on [<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#CrossOriginIsolated" id="ref-for-CrossOriginIsolated①">CrossOriginIsolated</a></code>],
       then return false. 
      <li>
@@ -1205,11 +1203,11 @@ an <a data-link-type="dfn" href="#integrity-verification-algorithm" id="ref-for-
    <div class="algorithm" data-algorithm="obtain a storage key for non-storage purposes isolated context">
      To obtain a storage key for non-storage purposes, given an <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment"> environment</a> <var>environment</var>, run these steps: 
     <ol>
-     <li> Let <var>origin</var> be <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②">origin</a> if <var>environment</var> is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object④">environment settings object</a>; otherwise <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url" id="ref-for-concept-environment-creation-url">creation URL</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin③">origin</a>. 
+     <li> Let <var>origin</var> be <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②">origin</a> if <var>environment</var> is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object④">environment settings object</a>; otherwise <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url" id="ref-for-concept-environment-creation-url">creation URL</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin③">origin</a>. 
      <li>
       <ins> Let <var>top-level origin</var> be <var>environment</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-top-level-origin" id="ref-for-concept-environment-top-level-origin①">top-level origin</a>. </ins>
      <li>
-      <ins> If the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑥">user agent</a>'s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map④">origin integrity verification map</a> [<var>top-level origin</var>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exists</a>, return a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple">tuple</a> consisting of <var>top-level origin</var> and <var>origin</var>. </ins>
+      <ins> If the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#user-agent" id="ref-for-user-agent⑥">user agent</a>’s <a data-link-type="dfn" href="#origin-integrity-verification-map" id="ref-for-origin-integrity-verification-map④">origin integrity verification map</a> [<var>top-level origin</var>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exists</a>, return a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple">tuple</a> consisting of <var>top-level origin</var> and <var>origin</var>. </ins>
      <li> Return a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple①">tuple</a> consisting of <var>origin</var>. 
     </ol>
    </div>
